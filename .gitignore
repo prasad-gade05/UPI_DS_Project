@@ -62,7 +62,7 @@ Desktop.ini
 
 # ── Logs ──────────────────────────────────────────
 *.log
-logs/
+/logs/
 
 # ── Streamlit ─────────────────────────────────────
 .streamlit/secrets.toml
