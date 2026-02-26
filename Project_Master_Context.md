@@ -361,13 +361,15 @@ data/
   "data": {
     "hoverDataList": [
       {
-        "name": "MUMBAI",
+        "name": "mumbai district",
         "metric": [{ "type": "TOTAL", "count": 123456, "amount": 789012.34 }]
       }
     ]
   }
 }
 ```
+
+> **⚠️ Note:** District names in PhonePe Pulse are **lowercase with a " district" suffix** (e.g., `"mysuru district"`, `"bengaluru urban district"`), not uppercase as sometimes assumed. The Silver layer cleaning step must strip the suffix and normalize casing.
 
 ### Primary Data Source 2: NPCI Official Statistics
 
@@ -489,10 +491,12 @@ ATM Transaction Data (Millions per Quarter):
 ### Data Freshness & Update Strategy
 
 - **NPCI data**: Published monthly, typically by the 5th of the following month
-- **PhonePe Pulse**: Updated quarterly on GitHub (check commit history)
-- **RBI DBIE**: Monthly bulletins published; currency data weekly
+- **PhonePe Pulse**: Updated quarterly on GitHub (check commit history); latest available data is Q4 2024 (added March 2025). Updates may lag; pipeline should handle gracefully when no new data is found.
+- **RBI DBIE**: Monthly bulletins published; currency data weekly (curated as quarterly snapshots in this project: months 3, 6, 9, 12)
 - **Pipeline automation**: GitHub Actions cron job scheduled for the 5th of each month
   to pull latest data and re-run the pipeline
+
+> **⚠️ Data scope note:** PhonePe Pulse data represents **PhonePe transactions only** (~48% of UPI market), not the entire UPI ecosystem. NPCI data provides total market volumes. Dashboards and README should clearly attribute which data source powers each visualization.
 
 ---
 
@@ -1100,6 +1104,8 @@ market effectively behaves as if it has fewer than 3 competitors.
 to shed ~18 percentage points. This cap has been repeatedly delayed and is a major policy
 debate in India's fintech ecosystem.
 
+> **⚠️ Data Limitation:** The curated market share data currently covers only 3 months (Dec 2024, Jan 2025, Mar 2025). For a meaningful HHI *trend* analysis, expand to 12–24 months by curating from NPCI monthly press releases, or compute PhonePe's implied share as `PhonePe_Pulse_volume / NPCI_total_volume` for historical periods.
+
 ### Module 2: Time-Series Forecasting
 
 **File:** `src/analytics/forecasting.py`
@@ -1111,7 +1117,7 @@ debate in India's fintech ecosystem.
    - Handles seasonality automatically (yearly, monthly)
    - Robust to missing data and outliers
    - Interpretable components (trend, seasonality, holidays)
-   - Custom Indian seasonality (Diwali effect) added
+   - Custom Indian seasonality (Diwali effect) via `add_country_holidays('IN')`
    - Multiplicative seasonality mode (growth is multiplicative)
    - Changepoint prior scale: 0.05
 
@@ -1177,9 +1183,13 @@ digital transaction volume — particularly in small-value payments that previou
 informally (chai shops, auto-rickshaws, street vendors). India is becoming "less cash-dependent"
 rather than "cashless."
 
+> **⚠️ Data Join Note:** RBI currency-in-circulation data is curated as **quarterly snapshots** (months 3, 6, 9, 12), while NPCI UPI data is monthly. The Gold layer SQL uses a correlated subquery to forward-fill the latest quarterly CIC value to each UPI month (not a direct month-to-month join, which would leave 8 of 12 months empty).
+
 ---
 
 ## 14. Power BI — DAX Measures Reference
+
+> **⚠️ Power BI Setup Prerequisite:** `dim_date` must be marked as a **Date table** in Power BI (`Table tools → Mark as Date Table → full_date`). The `DATEADD` functions used in Growth Metrics require this relationship to work correctly. Ensure relationships are built between fact table `date_key` (integer YYYYMM) and `dim_date.date_key`.
 
 ### Volume & Value Metrics
 
@@ -1201,7 +1211,7 @@ rather than "cashless."
 
 | Measure Name         | DAX Logic Summary                                           | Purpose                   |
 | -------------------- | ----------------------------------------------------------- | ------------------------- |
-| `HHI Index`          | `SUMX(fact_market_concentration, [hhi_index])`              | Current HHI value         |
+| `HHI Index`          | `SELECTEDVALUE(fact_market_concentration, [hhi_index])`     | Current HHI value         |
 | `HHI Status`         | SWITCH on HHI thresholds (0.25, 0.15) with emoji indicators | Color-coded status        |
 | `Duopoly Share %`    | MAX(fact_market_concentration[top2_combined_share])         | PhonePe + GPay combined   |
 | `Equivalent Firms`   | `DIVIDE(1, AVERAGE([hhi_index]))`                           | Market complexity measure |
@@ -1655,7 +1665,7 @@ During project selection, two alternative projects were evaluated before selecti
 | `state`                 | string   | Original state name             |
 | `state_clean`           | string   | Cleaned: title case, no hyphens |
 | `district`              | string   | Original district name          |
-| `district_clean`        | string   | Cleaned: uppercase, trimmed     |
+| `district_clean`        | string   | Cleaned: " district" suffix removed, title case, trimmed |
 | `metric_type`           | string   | "TOTAL"                         |
 | `transaction_count`     | int64    | Number of transactions          |
 | `transaction_amount`    | float64  | Value in INR                    |

@@ -21,7 +21,7 @@ I've thought through this carefully considering your background, the Indian job 
 
 - **Fintech is THE hottest sector** in India right now — every recruiter from Razorpay, PhonePe, Paytm, CRED, Goldman Sachs, JP Morgan will immediately notice this
 - **Almost nobody** has built a production-grade analytics platform on this — most people still do Netflix/Titanic/IPL projects
-- **Data is released monthly** by NPCI, so your 2025 data is guaranteed fresh
+- **Data is released monthly** by NPCI, so your 2025 data will stay fresh as new months are published
 - Shows **domain knowledge + technical skills** — the combination that gets you hired
 - **India's UPI is globally studied** (even the Fed and EU reference it) — makes your project internationally relevant
 
@@ -33,9 +33,11 @@ I've thought through this carefully considering your background, the Indian job 
 | **RBI Database (DBIE)**                  | Payment system indicators, digital vs cash trends, bank-wise data                        | dbie.rbi.org.in                                                      |
 | **RBI Monthly Bulletins 2025**           | Monetary aggregates, payment infrastructure stats                                        | rbi.org.in/scripts/BS_ViewBulletin.aspx                              |
 | **Ministry of Electronics & IT (MeitY)** | Digital India statistics, DigiLocker usage                                               | data.gov.in (search digital payments)                                |
-| **PhonePe Pulse Dataset**                | Anonymized, granular UPI transaction data — **state-wise, district-wise, category-wise** | github.com/PhonePe/pulse (updated quarterly, check for 2025 updates) |
+| **PhonePe Pulse Dataset**                | Anonymized, granular UPI transaction data — **state-wise, district-wise, category-wise** | github.com/PhonePe/pulse (updated quarterly; latest data: Q4 2024 as of March 2025) |
 
 > **PhonePe Pulse is the goldmine here.** It's an open dataset on GitHub with district-level granularity across India. Most students don't even know it exists. Combined with NPCI macro data and RBI data, you have a multi-source analytics project that looks genuinely professional.
+>
+> **⚠️ Important:** PhonePe Pulse data covers **PhonePe transactions only**, not the entire UPI market. Use NPCI data for total market volumes and market share calculations. The pipeline should log when no new PhonePe data is available (updates may lag by a quarter).
 
 ### What to Build — Full Scope
 
@@ -1117,7 +1119,7 @@ class PhonePePulseIngester(BaseIngester):
           "data": {
             "hoverDataList": [
               {
-                "name": "MUMBAI",
+                "name": "mumbai district",
                 "metric": [
                   {"type": "TOTAL", "count": 123456, "amount": 789012.34}
                 ]
@@ -1230,16 +1232,91 @@ class PhonePePulseIngester(BaseIngester):
         logger.info(f"Wrote {len(df)} user records to {output_file}")
 
     def _parse_aggregated_insurance(self) -> None:
-        """Parse insurance transaction data — same pattern."""
-        # Similar implementation to _parse_aggregated_transactions
-        # but from data/aggregated/insurance/country/india/{year}/{q}.json
-        logger.info("Insurance data parsing: implement similar to transactions")
-        pass  # Implement same pattern
+        """Parse insurance transaction data — same pattern as aggregated transactions."""
+        records = []
+        base = self.repo_path / "data" / "aggregated" / "insurance" / "country" / "india"
+
+        if not base.exists():
+            logger.warning(f"Insurance data path does not exist: {base}")
+            return
+
+        for year_dir in sorted(base.iterdir()):
+            if not year_dir.is_dir():
+                continue
+            year = int(year_dir.name)
+
+            for quarter_file in sorted(year_dir.glob("*.json")):
+                quarter = int(quarter_file.stem)
+                try:
+                    data = json.loads(quarter_file.read_text(encoding="utf-8"))
+                    if data.get("success") and "data" in data:
+                        for item in data["data"].get("transactionData", []):
+                            category = item.get("name", "Unknown")
+                            for pi in item.get("paymentInstruments", []):
+                                records.append({
+                                    "year": year,
+                                    "quarter": quarter,
+                                    "category": category,
+                                    "type": pi.get("type", ""),
+                                    "count": pi.get("count", 0),
+                                    "amount": pi.get("amount", 0.0),
+                                    "source": "phonepe_pulse",
+                                    "data_type": "aggregated_insurance",
+                                    "ingested_at": self.ingest_timestamp,
+                                })
+                except Exception as e:
+                    logger.warning(f"Failed to parse {quarter_file}: {e}")
+
+        if records:
+            df = pd.DataFrame(records)
+            output_file = self.output_path / "aggregated_insurance.parquet"
+            df.to_parquet(output_file, index=False, engine="pyarrow")
+            logger.info(f"Wrote {len(df)} insurance records to {output_file}")
+        else:
+            logger.warning("No insurance records parsed")
 
     def _parse_top_transactions(self) -> None:
         """Parse top states/districts/pincodes by transaction volume."""
-        logger.info("Top transactions parsing: implement for ranking data")
-        pass  # Implement same pattern
+        records = []
+        base = self.repo_path / "data" / "top" / "transaction" / "country" / "india"
+
+        if not base.exists():
+            logger.warning(f"Top transaction data path does not exist: {base}")
+            return
+
+        for year_dir in sorted(base.iterdir()):
+            if not year_dir.is_dir():
+                continue
+            year = int(year_dir.name)
+
+            for quarter_file in sorted(year_dir.glob("*.json")):
+                quarter = int(quarter_file.stem)
+                try:
+                    data = json.loads(quarter_file.read_text(encoding="utf-8"))
+                    if data.get("success") and "data" in data:
+                        for level in ["states", "districts", "pincodes"]:
+                            for item in data["data"].get(level, []):
+                                entity = item.get("entityName", "Unknown")
+                                metric = item.get("metric", {})
+                                records.append({
+                                    "year": year,
+                                    "quarter": quarter,
+                                    "level": level,
+                                    "entity_name": entity,
+                                    "count": metric.get("count", 0),
+                                    "amount": metric.get("amount", 0.0),
+                                    "source": "phonepe_pulse",
+                                    "data_type": "top_transaction",
+                                    "ingested_at": self.ingest_timestamp,
+                                })
+                except Exception as e:
+                    logger.warning(f"Failed to parse {quarter_file}: {e}")
+
+        if records:
+            df = pd.DataFrame(records)
+            output_file = self.output_path / "top_transactions.parquet"
+            df.to_parquet(output_file, index=False, engine="pyarrow")
+            logger.info(f"Wrote {len(df)} top transaction records to {output_file}")
 
     def validate_extraction(self) -> bool:
         """Validate that critical Parquet files were created and non-empty."""
@@ -1342,6 +1419,10 @@ class NPCIIngester(BaseIngester):
 
     # UPI App Market Share Data (from NPCI monthly reports)
     # This data is crucial for HHI calculation
+    # ⚠️ NOTE: Only 3 months of data below. For a meaningful HHI trend analysis,
+    # expand this to 12-24 months by curating from NPCI monthly press releases.
+    # Alternatively, compute PhonePe's share from Pulse data:
+    #   PhonePe_share = PhonePe_volume / NPCI_total_volume
     UPI_APP_MARKET_SHARE = {
         # Format: (year, month): {app: share_percentage}
         (2024, 12): {
@@ -1463,36 +1544,49 @@ class NPCIIngester(BaseIngester):
         """
         Attempt to scrape latest data from NPCI website.
         Falls back gracefully if site structure changes.
+        
+        NOTE: NPCI uses dynamic JS rendering — requests-based scraping 
+        will likely find no tables. Selenium fallback may be needed.
         """
-        try:
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Research Project - UPI Analytics)"
-            }
-            response = requests.get(
-                self.NPCI_UPI_STATS_URL,
-                headers=headers,
-                timeout=30
-            )
+        MAX_RETRIES = 3
+        for attempt in range(MAX_RETRIES):
+            try:
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Research Project - UPI Analytics)"
+                }
+                response = requests.get(
+                    self.NPCI_UPI_STATS_URL,
+                    headers=headers,
+                    timeout=30
+                )
 
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.text, "lxml")
-                # Parse any tables found
-                tables = pd.read_html(str(soup))
+                if response.status_code == 200:
+                    soup = BeautifulSoup(response.text, "lxml")
+                    tables = pd.read_html(str(soup))
 
-                if tables:
-                    for i, table in enumerate(tables):
-                        output_file = self.output_path / f"scraped_table_{i}.parquet"
-                        table.to_parquet(output_file, index=False)
-                        logger.info(f"Scraped table {i}: {table.shape}")
+                    if tables:
+                        for i, table in enumerate(tables):
+                            # Basic validation: table should have numeric data
+                            if table.select_dtypes(include='number').shape[1] == 0:
+                                logger.warning(f"Scraped table {i} has no numeric columns — skipping")
+                                continue
+                            output_file = self.output_path / f"scraped_table_{i}.parquet"
+                            table.to_parquet(output_file, index=False)
+                            logger.info(f"Scraped table {i}: {table.shape}")
+                        return  # Success
+                    else:
+                        logger.warning("No HTML tables found on NPCI page "
+                                       "(may need Selenium for JS-rendered content)")
+                        return  # No point retrying — JS rendering issue
                 else:
-                    logger.warning("No HTML tables found on NPCI page "
-                                   "(may need Selenium for JS-rendered content)")
-            else:
-                logger.warning(f"NPCI returned status {response.status_code}")
+                    logger.warning(f"NPCI returned status {response.status_code} (attempt {attempt + 1}/{MAX_RETRIES})")
 
-        except Exception as e:
-            logger.warning(f"Web scraping failed (non-critical): {e}")
-            logger.info("Using curated data as primary source — this is fine.")
+            except requests.exceptions.Timeout:
+                logger.warning(f"NPCI request timed out (attempt {attempt + 1}/{MAX_RETRIES})")
+            except Exception as e:
+                logger.warning(f"Web scraping failed (attempt {attempt + 1}/{MAX_RETRIES}): {e}")
+
+        logger.info("All NPCI scrape attempts failed — using curated data as primary source.")
 
     def validate_extraction(self) -> bool:
         """Validate critical NPCI files exist."""
@@ -2184,10 +2278,13 @@ class SilverTransformer:
         df["state_clean"] = df["state_clean"].replace(state_corrections)
 
         # 2. Standardize district names
+        # NOTE: PhonePe Pulse district names are lowercase with " district" suffix
+        # (e.g., "mysuru district", "bengaluru urban district"). Strip suffix first.
         df["district_clean"] = (
             df["district"]
-            .str.upper()
             .str.strip()
+            .str.replace(r"\s*district\s*$", "", regex=True, case=False)
+            .str.title()
             .str.replace(r"\s+", " ", regex=True)
         )
 
@@ -2667,7 +2764,12 @@ class GoldModeler:
         logger.info(f"fact_market_concentration: {count} records")
 
     def _build_fact_cash_displacement(self) -> None:
-        """Build cash displacement analysis fact table."""
+        """Build cash displacement analysis fact table.
+        
+        NOTE: RBI CIC data is quarterly (months 3,6,9,12) while NPCI UPI data
+        is monthly. We join on year only and forward-fill the CIC value so every
+        UPI month gets the most recent quarterly CIC reading.
+        """
         npci_file = self.silver_path / "transactions" / "npci_monthly_volumes.parquet"
         rbi_file = self.silver_path / "transactions" / "rbi_currency_circulation.parquet"
 
@@ -2686,23 +2788,34 @@ class GoldModeler:
                         year, month,
                         currency_in_circulation_lakh_cr AS cic_lakh_cr
                     FROM read_parquet('{rbi_file}')
+                ),
+                -- Left join on year, match to the latest available quarter <= current month
+                joined AS (
+                    SELECT
+                        u.year, u.month,
+                        u.upi_volume_bn,
+                        u.upi_value_lakh_cr,
+                        (SELECT c2.cic_lakh_cr
+                         FROM cash c2
+                         WHERE c2.year = u.year AND c2.month <= u.month
+                         ORDER BY c2.month DESC LIMIT 1) AS cic_lakh_cr
+                    FROM upi u
                 )
                 SELECT
-                    CAST(u.year * 100 + u.month AS INTEGER) AS date_key,
-                    u.upi_volume_bn,
-                    u.upi_value_lakh_cr,
-                    c.cic_lakh_cr,
+                    CAST(year * 100 + month AS INTEGER) AS date_key,
+                    upi_volume_bn,
+                    upi_value_lakh_cr,
+                    cic_lakh_cr,
 
                     -- Cash displacement ratio: UPI value / Currency in Circulation
-                    ROUND(u.upi_value_lakh_cr / NULLIF(c.cic_lakh_cr, 0), 4)
+                    ROUND(upi_value_lakh_cr / NULLIF(cic_lakh_cr, 0), 4)
                         AS digital_to_cash_ratio,
 
-                    -- UPI is replacing cash if this ratio grows while CIC growth slows
-                    u.upi_value_lakh_cr / NULLIF(c.cic_lakh_cr, 0) AS displacement_index
+                    -- Displacement index (same ratio, unrounded, for trend analysis)
+                    upi_value_lakh_cr / NULLIF(cic_lakh_cr, 0) AS displacement_index
 
-                FROM upi u
-                LEFT JOIN cash c ON u.year = c.year AND u.month = c.month
-                WHERE c.cic_lakh_cr IS NOT NULL
+                FROM joined
+                WHERE cic_lakh_cr IS NOT NULL
             """)
 
         count = self.con.execute(
@@ -3078,13 +3191,9 @@ class UPIForecaster:
             seasonality_mode='multiplicative',  # Growth is multiplicative
         )
 
-        # Add Indian festival seasonality (custom)
-        # Diwali typically falls in Oct-Nov, causing transaction spikes
-        model.add_seasonality(
-            name='diwali_effect',
-            period=365.25,
-            fourier_order=3
-        )
+        # Add Indian holiday effects for festival-season transaction spikes
+        # (Diwali, Holi, Eid, etc. — Prophet has built-in India holidays)
+        model.add_country_holidays(country_name='IN')
 
         # Fit model
         model.fit(prophet_df)
@@ -3504,11 +3613,11 @@ RETURN
 
 // ==================== MARKET CONCENTRATION (HHI) ====================
 
-// Herfindahl-Hirschman Index
+// Herfindahl-Hirschman Index (for a single selected period; use with date slicer)
 HHI Index =
-SUMX(
-    fact_market_concentration,
-    fact_market_concentration[hhi_index]
+SELECTEDVALUE(
+    fact_market_concentration[hhi_index],
+    AVERAGE(fact_market_concentration[hhi_index])
 )
 
 // HHI Interpretation with color coding
