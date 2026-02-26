@@ -95,20 +95,20 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 2.1 | **Data Validator** | ⬜ |
-| 2.1.1 | Non-empty dataset checks | ⬜ |
-| 2.1.2 | No null values in critical columns | ⬜ |
-| 2.1.3 | Positive values for counts and amounts | ⬜ |
-| 2.1.4 | Valid date range checks | ⬜ |
-| 2.1.5 | No duplicate record checks | ⬜ |
-| 2.2 | **Silver Transformer** | ⬜ |
-| 2.2.1 | PhonePe transaction cleaning (category standardization, date creation, type enforcement) | ⬜ |
-| 2.2.2 | PhonePe district data cleaning (state/district name normalization, region classification) | ⬜ |
-| 2.2.3 | NPCI volume cleaning (fiscal year addition, growth rate computation) | ⬜ |
-| 2.2.4 | NPCI market share cleaning (app name standardization, top-2 flagging) | ⬜ |
-| 2.2.5 | RBI currency data cleaning | ⬜ |
-| 2.3 | Write unit tests for all transformations | ⬜ |
-| 2.4 | Verify: all Silver Parquets + quality reports generated | ⬜ |
+| 2.1 | **Data Validator** | ✅ |
+| 2.1.1 | Non-empty dataset checks | ✅ |
+| 2.1.2 | No null values in critical columns | ✅ |
+| 2.1.3 | Positive values for counts and amounts | ✅ |
+| 2.1.4 | Valid date range checks | ✅ |
+| 2.1.5 | No duplicate record checks | ✅ |
+| 2.2 | **Silver Transformer** | ✅ |
+| 2.2.1 | PhonePe transaction cleaning (category standardization, date creation, type enforcement) | ✅ |
+| 2.2.2 | PhonePe district data cleaning (state/district name normalization, region classification) | ✅ |
+| 2.2.3 | NPCI volume cleaning (fiscal year addition, growth rate computation) | ✅ |
+| 2.2.4 | NPCI market share cleaning (app name standardization, top-2 flagging) | ✅ |
+| 2.2.5 | RBI currency data cleaning | ✅ |
+| 2.3 | Write unit tests for all transformations | ✅ |
+| 2.4 | Verify: all Silver Parquets + quality reports generated | ✅ |
 
 ---
 
@@ -242,15 +242,15 @@
 | Metric | Count |
 |--------|-------|
 | **Total Tasks (all levels)** | 126 |
-| **Completed** | 45 |
-| **Not Started** | 81 |
-| **Completion %** | 35.7% |
+| **Completed** | 57 |
+| **Not Started** | 69 |
+| **Completion %** | 45.2% |
 
 | Phase | Status | Tasks Done / Total |
 |-------|--------|--------------------|
 | Phase 0: Project Scaffolding | 🟡 Near Complete | 28 / 29 |
 | Phase 1: Bronze Ingestion | ✅ Complete | 17 / 17 |
-| Phase 2: Silver Transformation | 🔴 Not Started | 0 / 12 |
+| Phase 2: Silver Transformation | ✅ Complete | 12 / 12 |
 | Phase 3: Gold Star Schema | 🔴 Not Started | 0 / 12 |
 | Phase 4: Analytics Engine | 🔴 Not Started | 0 / 19 |
 | Phase 5: Power BI Dashboard | 🔴 Not Started | 0 / 17 |
