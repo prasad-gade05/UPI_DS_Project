@@ -49,7 +49,7 @@
 | 0.5 | Initialize Git repository | ✅ |
 | 0.6 | Create Python virtual environment | ✅ |
 | 0.7 | Install all dependencies | ✅ |
-| 0.8 | Push initial commit to GitHub | ⬜ |
+| 0.8 | Push initial commit to GitHub | ⬜ *(requires remote setup)* |
 
 ---
 
@@ -84,9 +84,9 @@
 | 1.5.1 | Structure currency-in-circulation data | ✅ |
 | 1.5.2 | Structure ATM transaction data | ✅ |
 | 1.5.3 | Verify: 2 Parquet files (26 + 26 rows) | ✅ |
-| 1.6 | Implement `PipelineOrchestrator` and `run_pipeline.py` CLI | ⬜ |
-| 1.7 | Write `Makefile` for developer workflow | ⬜ |
-| 1.8 | Write GitHub Actions workflow for monthly automation | ⬜ |
+| 1.6 | Implement `PipelineOrchestrator` and `run_pipeline.py` CLI | ✅ |
+| 1.7 | Write `Makefile` for developer workflow | ✅ |
+| 1.8 | Write GitHub Actions workflow for monthly automation | ✅ |
 | 1.9 | Document Phase 1 in `task2_bronze_ingestion_log.md` | ✅ |
 
 ---
@@ -242,14 +242,14 @@
 | Metric | Count |
 |--------|-------|
 | **Total Tasks (all levels)** | 126 |
-| **Completed** | 42 |
-| **Not Started** | 84 |
-| **Completion %** | 33.3% |
+| **Completed** | 45 |
+| **Not Started** | 81 |
+| **Completion %** | 35.7% |
 
 | Phase | Status | Tasks Done / Total |
 |-------|--------|--------------------|
 | Phase 0: Project Scaffolding | 🟡 Near Complete | 28 / 29 |
-| Phase 1: Bronze Ingestion | 🟡 Near Complete | 14 / 17 |
+| Phase 1: Bronze Ingestion | ✅ Complete | 17 / 17 |
 | Phase 2: Silver Transformation | 🔴 Not Started | 0 / 12 |
 | Phase 3: Gold Star Schema | 🔴 Not Started | 0 / 12 |
 | Phase 4: Analytics Engine | 🔴 Not Started | 0 / 19 |
