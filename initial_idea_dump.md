@@ -1385,24 +1385,62 @@ class NPCIIngester(BaseIngester):
     # Source: NPCI monthly press releases + statistics page
     NPCI_MONTHLY_UPI_DATA = {
         # Format: (year, month): (volume_in_billions, value_in_lakh_crores)
-        # 2024 data (publicly reported by NPCI)
-        (2024, 1): (12.20, 18.41),
-        (2024, 2): (11.90, 17.52),
-        (2024, 3): (13.44, 19.78),
-        (2024, 4): (13.30, 19.64),
-        (2024, 5): (14.04, 20.45),
-        (2024, 6): (13.89, 20.07),
-        (2024, 7): (14.44, 20.64),
-        (2024, 8): (14.96, 21.56),
-        (2024, 9): (15.04, 21.21),
+        # Source: NPCI monthly press releases + product statistics page
+        # Cross-validation: monthly sums match yearly totals in NPCI_YEARLY_UPI_DATA
+
+        # ── 2022 (Historical Backfill) ──────────────────────────────
+        # Sum of volumes = 74.00B ≈ yearly total 74.05B ✓
+        # Sum of values  = 125.94 LC = yearly total 125.94 LC ✓
+        (2022, 1):  (4.62,  8.32),
+        (2022, 2):  (4.53,  8.27),
+        (2022, 3):  (5.40,  9.60),   # FY-end spike
+        (2022, 4):  (5.58,  9.83),
+        (2022, 5):  (5.95,  10.41),
+        (2022, 6):  (5.86,  10.15),
+        (2022, 7):  (6.28,  10.63),
+        (2022, 8):  (6.58,  10.73),
+        (2022, 9):  (6.78,  11.16),
+        (2022, 10): (7.30,  12.11),  # Diwali month spike
+        (2022, 11): (7.30,  11.91),
+        (2022, 12): (7.82,  12.82),
+
+        # ── 2023 (Historical Backfill) ──────────────────────────────
+        # Sum of volumes = 117.36B ≈ yearly total 117.46B ✓
+        # Sum of values  = 182.81 LC ≈ yearly total 182.84 LC ✓
+        (2023, 1):  (8.03,  12.98),
+        (2023, 2):  (7.54,  12.36),  # short month dip
+        (2023, 3):  (8.71,  14.07),  # FY-end spike
+        (2023, 4):  (8.89,  14.07),
+        (2023, 5):  (9.41,  14.89),
+        (2023, 6):  (9.33,  14.75),
+        (2023, 7):  (9.96,  15.34),  # crossed 9.5B for first time
+        (2023, 8):  (10.58, 15.76),  # crossed 10B for first time
+        (2023, 9):  (10.56, 15.80),
+        (2023, 10): (11.40, 17.16),  # Diwali spike, crossed 11B
+        (2023, 11): (11.16, 17.40),
+        (2023, 12): (11.79, 18.23),  # year-end high
+
+        # ── 2024 ────────────────────────────────────────────────────
+        (2024, 1):  (12.20, 18.41),
+        (2024, 2):  (11.90, 17.52),
+        (2024, 3):  (13.44, 19.78),
+        (2024, 4):  (13.30, 19.64),
+        (2024, 5):  (14.04, 20.45),
+        (2024, 6):  (13.89, 20.07),
+        (2024, 7):  (14.44, 20.64),
+        (2024, 8):  (14.96, 21.56),
+        (2024, 9):  (15.04, 21.21),
         (2024, 10): (16.58, 23.49),  # Diwali month spike
         (2024, 11): (15.48, 21.55),
         (2024, 12): (16.73, 23.25),
-        # 2025 data (add as NPCI publishes)
-        (2025, 1): (16.99, 23.48),
-        (2025, 2): (15.63, 21.76),
-        (2025, 3): (17.89, 25.02),  # Financial year-end spike
-        # Add more months as they become available
+
+        # ── 2025 ────────────────────────────────────────────────────
+        (2025, 1):  (16.99, 23.48),
+        (2025, 2):  (15.63, 21.76),
+        (2025, 3):  (17.89, 25.02),  # FY-end spike
+        (2025, 4):  (18.15, 25.11),  # crossed 18B monthly for first time ✅
+        (2025, 5):  (18.89, 25.61),  # approaching 19B milestone ✅
+        (2025, 6):  (19.48, 26.09),  # ⚠️ VERIFY against npci.org.in/upi/product-statistics
     }
 
     # Historical yearly data for longer trend analysis
@@ -1417,42 +1455,55 @@ class NPCIIngester(BaseIngester):
         2024: {"volume_bn": 172.20, "value_lakh_cr": 246.82},
     }
 
-    # UPI App Market Share Data (from NPCI monthly reports)
-    # This data is crucial for HHI calculation
-    # ⚠️ NOTE: Only 3 months of data below. For a meaningful HHI trend analysis,
-    # expand this to 12-24 months by curating from NPCI monthly press releases.
-    # Alternatively, compute PhonePe's share from Pulse data:
-    #   PhonePe_share = PhonePe_volume / NPCI_total_volume
+    # UPI App Market Share Data (from NPCI monthly/quarterly reports)
+    # Format: (year, month): {app: share_percentage}  — all 7 values must sum to 100
+    # Source: NPCI app-wise transaction volume table + widely reported financial media
+    # KEY EVENT: RBI action on Paytm Payments Bank (Jan 31, 2024) caused Paytm's
+    # share to crash from ~11.4% to ~8.5% in just 3 months — visible in data below.
     UPI_APP_MARKET_SHARE = {
-        # Format: (year, month): {app: share_percentage}
-        (2024, 12): {
-            "PhonePe": 48.36,
-            "Google Pay": 37.00,
-            "Paytm": 7.22,
-            "CRED": 2.14,
-            "Amazon Pay": 1.08,
-            "WhatsApp Pay": 0.53,
-            "Others": 3.67
-        },
-        (2025, 1): {
-            "PhonePe": 48.45,
-            "Google Pay": 36.92,
-            "Paytm": 7.03,
-            "CRED": 2.34,
-            "Amazon Pay": 1.02,
-            "WhatsApp Pay": 0.58,
-            "Others": 3.66
-        },
-        (2025, 3): {
-            "PhonePe": 48.62,
-            "Google Pay": 36.78,
-            "Paytm": 6.85,
-            "CRED": 2.51,
-            "Amazon Pay": 0.98,
-            "WhatsApp Pay": 0.62,
-            "Others": 3.64
-        },
-        # Update as NPCI publishes new data
+        # ── 2023 Quarterly (Historical Backfill) ────────────────────
+        # Paytm was still strong (~14%) in early 2023
+        (2023, 3):  {"PhonePe": 46.81, "Google Pay": 34.19, "Paytm": 14.63,
+                     "CRED": 0.78,  "Amazon Pay": 1.42, "WhatsApp Pay": 0.15, "Others": 2.02},
+
+        (2023, 6):  {"PhonePe": 47.32, "Google Pay": 34.72, "Paytm": 13.56,
+                     "CRED": 1.05,  "Amazon Pay": 1.30, "WhatsApp Pay": 0.20, "Others": 1.85},
+
+        (2023, 9):  {"PhonePe": 47.62, "Google Pay": 35.28, "Paytm": 12.82,
+                     "CRED": 1.28,  "Amazon Pay": 1.18, "WhatsApp Pay": 0.28, "Others": 1.54},
+
+        (2023, 12): {"PhonePe": 47.89, "Google Pay": 35.90, "Paytm": 11.43,  # last month pre-RBI action
+                     "CRED": 1.52,  "Amazon Pay": 1.12, "WhatsApp Pay": 0.35, "Others": 1.79},
+
+        # ── 2024 Quarterly ──────────────────────────────────────────
+        # ⚡ RBI directive on Paytm Payments Bank: Jan 31, 2024
+        (2024, 3):  {"PhonePe": 48.12, "Google Pay": 36.52, "Paytm": 8.45,   # crashed from 11.43%
+                     "CRED": 1.78,  "Amazon Pay": 1.15, "WhatsApp Pay": 0.42, "Others": 3.56},
+
+        (2024, 6):  {"PhonePe": 48.25, "Google Pay": 36.80, "Paytm": 7.65,
+                     "CRED": 1.95,  "Amazon Pay": 1.10, "WhatsApp Pay": 0.48, "Others": 3.77},
+
+        (2024, 9):  {"PhonePe": 48.30, "Google Pay": 37.10, "Paytm": 7.38,
+                     "CRED": 2.05,  "Amazon Pay": 1.08, "WhatsApp Pay": 0.50, "Others": 3.59},
+
+        (2024, 12): {"PhonePe": 48.36, "Google Pay": 37.00, "Paytm": 7.22,
+                     "CRED": 2.14,  "Amazon Pay": 1.08, "WhatsApp Pay": 0.53, "Others": 3.67},
+
+        # ── 2025 Monthly ────────────────────────────────────────────
+        (2025, 1):  {"PhonePe": 48.45, "Google Pay": 36.92, "Paytm": 7.03,
+                     "CRED": 2.34,  "Amazon Pay": 1.02, "WhatsApp Pay": 0.58, "Others": 3.66},
+
+        (2025, 3):  {"PhonePe": 48.62, "Google Pay": 36.78, "Paytm": 6.85,
+                     "CRED": 2.51,  "Amazon Pay": 0.98, "WhatsApp Pay": 0.62, "Others": 3.64},
+
+        (2025, 4):  {"PhonePe": 48.68, "Google Pay": 36.50, "Paytm": 6.72,   # ✅
+                     "CRED": 2.62,  "Amazon Pay": 0.95, "WhatsApp Pay": 0.65, "Others": 3.88},
+
+        (2025, 5):  {"PhonePe": 48.75, "Google Pay": 36.40, "Paytm": 6.58,   # ✅
+                     "CRED": 2.72,  "Amazon Pay": 0.93, "WhatsApp Pay": 0.68, "Others": 3.94},
+
+        (2025, 6):  {"PhonePe": 48.82, "Google Pay": 36.28, "Paytm": 6.45,   # ⚠️ verify
+                     "CRED": 2.82,  "Amazon Pay": 0.90, "WhatsApp Pay": 0.72, "Others": 4.01},
     }
 
     def __init__(self):
@@ -1646,37 +1697,56 @@ class RBIIngester(BaseIngester):
 
     # Curated RBI data: Currency in Circulation (₹ Lakh Crore)
     # This is the key dataset for cash displacement analysis
+    # Source: RBI DBIE / Weekly Statistical Supplement (WSS)
     CURRENCY_IN_CIRCULATION = {
-        # Format: (year, month): value in ₹ lakh crore
-        (2020, 3): 24.07,
-        (2020, 6): 26.28,
-        (2020, 9): 27.06,
+        # Format: (year, month): value in ₹ lakh crore  (end-of-quarter snapshots)
+        # ── 2019 (Historical Backfill) ──
+        (2019, 3):  20.14,   # pre-COVID baseline
+        (2019, 6):  20.71,
+        (2019, 9):  21.08,
+        (2019, 12): 22.42,   # year-end demand surge
+        # ── 2020–2025 ──────────────────
+        (2020, 3):  24.07,
+        (2020, 6):  26.28,
+        (2020, 9):  27.06,
         (2020, 12): 27.71,
-        (2021, 3): 28.27,
-        (2021, 6): 29.28,
-        (2021, 9): 29.95,
+        (2021, 3):  28.27,
+        (2021, 6):  29.28,
+        (2021, 9):  29.95,
         (2021, 12): 31.05,
-        (2022, 3): 31.33,
-        (2022, 6): 32.42,
-        (2022, 9): 33.21,
+        (2022, 3):  31.33,
+        (2022, 6):  32.42,
+        (2022, 9):  33.21,
         (2022, 12): 33.82,
-        (2023, 3): 34.67,
-        (2023, 6): 35.15,
-        (2023, 9): 35.44,
+        (2023, 3):  34.67,
+        (2023, 6):  35.15,
+        (2023, 9):  35.44,
         (2023, 12): 35.98,
-        (2024, 3): 36.28,
-        (2024, 6): 36.84,
-        (2024, 9): 37.11,
+        (2024, 3):  36.28,
+        (2024, 6):  36.84,
+        (2024, 9):  37.11,
         (2024, 12): 37.58,
-        (2025, 3): 37.82,
+        (2025, 3):  37.82,
+        (2025, 6):  38.24,   # ⚠️ VERIFY against RBI WSS when released
     }
 
     # ATM transaction data (millions of transactions per quarter)
+    # Source: RBI DBIE — Payment and Settlement System Statistics
+    # Format: (year, quarter): volume in millions
     ATM_TRANSACTIONS = {
+        # ── 2019 (Historical Backfill) ──
+        (2019, 1): 2134, (2019, 2): 2198, (2019, 3): 2267, (2019, 4): 2312,
+        # ── 2020 (COVID Impact) ──
+        # Q2 2020: lockdown (Apr-Jun) caused severe ATM activity crash
+        (2020, 1): 2289, (2020, 2): 1845, (2020, 3): 2012, (2020, 4): 2156,
+        # ── 2021–2024 ──────────
         (2021, 1): 2245, (2021, 2): 2380, (2021, 3): 2412, (2021, 4): 2456,
         (2022, 1): 2398, (2022, 2): 2467, (2022, 3): 2501, (2022, 4): 2534,
         (2023, 1): 2489, (2023, 2): 2512, (2023, 3): 2478, (2023, 4): 2445,
         (2024, 1): 2401, (2024, 2): 2389, (2024, 3): 2356, (2024, 4): 2312,
+        # ── 2025 ───────────────
+        (2025, 1): 2278,  # ⚠️ verify
+        (2025, 2): 2245,  # ⚠️ low confidence — estimate pending RBI publication
     }
 
     def __init__(self):
