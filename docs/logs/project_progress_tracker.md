@@ -116,21 +116,21 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 3.1 | **Gold Modeler Class** | ⬜ |
-| 3.2 | **Dimension Tables** | ⬜ |
-| 3.2.1 | `dim_date` (Indian fiscal year, festival flags) | ⬜ |
-| 3.2.2 | `dim_geography` (district data, region/metro classification) | ⬜ |
-| 3.2.3 | `dim_app` (UPI apps with parent companies) | ⬜ |
-| 3.2.4 | `dim_category` (transaction categories with P2P/P2M flags) | ⬜ |
-| 3.3 | **Fact Tables** | ⬜ |
-| 3.3.1 | `fact_upi_transactions` (core transaction metrics) | ⬜ |
-| 3.3.2 | `fact_market_concentration` (HHI calculation in SQL) | ⬜ |
-| 3.3.3 | `fact_cash_displacement` (UPI vs cash joined data — quarterly forward-fill) | ⬜ |
-| 3.3.4 | `fact_digital_divide` (district percentiles and adoption tiers) | ⬜ |
-| 3.4 | Create analytical views (`v_monthly_summary`, `v_state_rankings`) | ⬜ |
-| 3.5 | Export all Gold tables as Parquets for BI consumption | ⬜ |
-| 3.6 | Document Star Schema in `docs/data_dictionary.md` | ⬜ |
-| 3.7 | Verify: DuckDB contains all tables; analytical queries return expected results | ⬜ |
+| 3.1 | **Gold Modeler Class** | ✅ |
+| 3.2 | **Dimension Tables** | ✅ |
+| 3.2.1 | `dim_date` (Indian fiscal year, festival flags) | ✅ |
+| 3.2.2 | `dim_geography` (district data, region/metro classification) | ✅ |
+| 3.2.3 | `dim_app` (UPI apps with parent companies) | ✅ |
+| 3.2.4 | `dim_category` (transaction categories with P2P/P2M flags) | ✅ |
+| 3.3 | **Fact Tables** | ✅ |
+| 3.3.1 | `fact_upi_transactions` (core transaction metrics) | ✅ |
+| 3.3.2 | `fact_market_concentration` (HHI calculation in SQL) | ✅ |
+| 3.3.3 | `fact_cash_displacement` (UPI vs cash joined data — quarterly forward-fill) | ✅ |
+| 3.3.4 | `fact_digital_divide` (district percentiles and adoption tiers) | ✅ |
+| 3.4 | Create analytical views (`v_monthly_summary`, `v_state_rankings`) | ✅ |
+| 3.5 | Export all Gold tables as Parquets for BI consumption | ✅ |
+| 3.6 | Document Star Schema in `docs/data_dictionary.md` | ✅ |
+| 3.7 | Verify: DuckDB contains all tables; analytical queries return expected results | ✅ |
 
 ---
 
@@ -242,16 +242,16 @@
 | Metric | Count |
 |--------|-------|
 | **Total Tasks (all levels)** | 126 |
-| **Completed** | 57 |
-| **Not Started** | 69 |
-| **Completion %** | 45.2% |
+| **Completed** | 69 |
+| **Not Started** | 57 |
+| **Completion %** | 54.8% |
 
 | Phase | Status | Tasks Done / Total |
 |-------|--------|--------------------|
 | Phase 0: Project Scaffolding | 🟡 Near Complete | 28 / 29 |
 | Phase 1: Bronze Ingestion | ✅ Complete | 17 / 17 |
 | Phase 2: Silver Transformation | ✅ Complete | 12 / 12 |
-| Phase 3: Gold Star Schema | 🔴 Not Started | 0 / 12 |
+| Phase 3: Gold Star Schema | ✅ Complete | 12 / 12 |
 | Phase 4: Analytics Engine | 🔴 Not Started | 0 / 19 |
 | Phase 5: Power BI Dashboard | 🔴 Not Started | 0 / 17 |
 | Phase 6: Streamlit Web App | 🔴 Not Started | 0 / 10 |
