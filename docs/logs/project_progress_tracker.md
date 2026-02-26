@@ -138,31 +138,32 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 4.1 | **HHI Analyzer (Market Concentration)** | ⬜ |
-| 4.1.1 | Compute HHI for each time period | ⬜ |
-| 4.1.2 | Generate interpretations (competitive / moderate / highly concentrated) | ⬜ |
-| 4.1.3 | Compute equivalent firms metric (1/HHI) | ⬜ |
-| 4.1.4 | Generate policy insight text | ⬜ |
-| 4.1.5 | Analyze Paytm Collapse event impact on HHI | ⬜ |
-| 4.2 | **UPI Forecaster (Time-Series)** | ⬜ |
-| 4.2.1 | Prepare data in Prophet format (`ds`, `y`) | ⬜ |
-| 4.2.2 | Configure Prophet with Indian holidays (`add_country_holidays('IN')`) | ⬜ |
-| 4.2.3 | Run Prophet forecast (12 months ahead) | ⬜ |
-| 4.2.4 | Run ARIMA(1,1,1) comparison model | ⬜ |
-| 4.2.5 | Perform seasonal decomposition (trend, seasonal, residual) | ⬜ |
-| 4.2.6 | Compare model performance (MAPE) | ⬜ |
-| 4.3 | **Digital Divide Analyzer (Geographic)** | ⬜ |
-| 4.3.1 | Compute state-level adoption rankings | ⬜ |
-| 4.3.2 | Calculate intra-state Gini coefficient | ⬜ |
-| 4.3.3 | K-Means clustering of districts (4 clusters) | ⬜ |
-| 4.3.4 | Identify bottom 50 underserved districts | ⬜ |
-| 4.4 | **Cash Displacement Analyzer** | ⬜ |
-| 4.4.1 | Compute digital-to-cash ratio time series | ⬜ |
-| 4.4.2 | Compute displacement velocity | ⬜ |
-| 4.4.3 | Correlate UPI growth with currency-in-circulation growth | ⬜ |
-| 4.4.4 | Generate "Is India going cashless?" insight | ⬜ |
-| 4.5 | Save all analytical outputs to Gold layer exports | ⬜ |
-| 4.6 | Verify: all modules produce valid outputs with logged insights | ⬜ |
+| 4.1 | **HHI Analyzer (Market Concentration)** | ✅ |
+| 4.1.1 | Compute HHI for each time period | ✅ |
+| 4.1.2 | Generate interpretations (competitive / moderate / highly concentrated) | ✅ |
+| 4.1.3 | Compute equivalent firms metric (1/HHI) | ✅ |
+| 4.1.4 | Generate policy insight text | ✅ |
+| 4.1.5 | Analyze Paytm Collapse event impact on HHI | ✅ |
+| 4.2 | **UPI Forecaster (Time-Series)** | ✅ |
+| 4.2.1 | Prepare data in Prophet format (`ds`, `y`) | ✅ (Prophet optional — not on 3.13.1) |
+| 4.2.2 | Configure Prophet with Indian holidays (`add_country_holidays('IN')`) | ✅ (code ready, skipped at runtime) |
+| 4.2.3 | Run Prophet forecast (12 months ahead) | ⏭️ Skipped (Prophet not installable on 3.13.1) |
+| 4.2.4 | Run ARIMA(1,1,1) comparison model | ✅ |
+| 4.2.5 | Perform seasonal decomposition (trend, seasonal, residual) | ✅ |
+| 4.2.6 | Compare model performance (MAPE) | ⏭️ Skipped (only ARIMA available) |
+| 4.3 | **Digital Divide Analyzer (Geographic)** | ✅ |
+| 4.3.1 | Compute state-level adoption rankings | ✅ |
+| 4.3.2 | Calculate intra-state Gini coefficient | ✅ |
+| 4.3.3 | K-Means clustering of districts (4 clusters) | ✅ |
+| 4.3.4 | Identify bottom 50 underserved districts | ✅ |
+| 4.4 | **Cash Displacement Analyzer** | ✅ |
+| 4.4.1 | Compute digital-to-cash ratio time series | ✅ |
+| 4.4.2 | Compute displacement velocity | ✅ |
+| 4.4.3 | Correlate UPI growth with currency-in-circulation growth | ✅ |
+| 4.4.4 | Generate "Is India going cashless?" insight | ✅ |
+| 4.5 | Save all analytical outputs to Gold layer exports | ✅ |
+| 4.6 | Verify: all modules produce valid outputs with logged insights | ✅ |
+| 4.7 | Write unit tests for analytics modules (23 tests) | ✅ |
 
 ---
 
