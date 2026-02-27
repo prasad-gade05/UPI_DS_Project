@@ -53,7 +53,7 @@ Use **Get Data → Parquet** (or Folder method) to load all 17 Gold layer export
 
 | Table Name in Power BI | Source File | Rows |
 |------------------------|-------------|------|
-| `dim_date` | `dim_date.parquet` | 120 |
+| `dim_date` | `dim_date.parquet` | ~3,653 |
 | `dim_geography` | `dim_geography.parquet` | 852 |
 | `dim_app` | `dim_app.parquet` | 7 |
 | `dim_category` | `dim_category.parquet` | 5 |
@@ -91,8 +91,10 @@ In Power Query Editor (Transform Data):
 
 **For `dim_date`:**
 1. Select `full_date` column → Change Type → Date
-2. Right-click `dim_date` table → **Mark as Date Table** → Select `full_date` as the date column
-3. This is CRITICAL — all time intelligence DAX functions require a marked date table
+2. Select `date_key` column → Change Type → Whole Number
+3. Right-click `dim_date` table → **Mark as Date Table** → Select `full_date` as the date column
+4. This is CRITICAL — all time intelligence DAX functions require a marked date table
+5. The `full_date` column contains contiguous daily dates (2017-01-01 to 2026-12-31) with no gaps, which is required for Power BI Date Table validation
 
 **For `arima_forecast`:**
 1. Change `date` column type to Date
@@ -174,7 +176,7 @@ Total Value INR =
 SUM(fact_upi_transactions[txn_amount_inr])
 
 Total Value Lakh Cr = 
-DIVIDE([Total Value INR], 10000000000000, 0)
+DIVIDE([Total Value INR], 1000000000000, 0)
 
 Total Value Cr = 
 DIVIDE([Total Value INR], 10000000, 0)
@@ -220,17 +222,21 @@ RETURN DIVIDE(CurrentYear - PrevYear, PrevYear, 0)
 CAGR Volume = 
 VAR FirstYear = CALCULATE(
     [Total Transactions],
-    FIRSTDATE(dim_date[full_date])
+    FIRSTNONBLANK(dim_date[full_date], [Total Transactions])
 )
 VAR LastYear = CALCULATE(
     [Total Transactions],
-    LASTDATE(dim_date[full_date])
+    LASTNONBLANK(dim_date[full_date], [Total Transactions])
 )
-VAR Years = DATEDIFF(
+VAR FirstDt = CALCULATE(
     MIN(dim_date[full_date]),
-    MAX(dim_date[full_date]),
-    YEAR
+    FIRSTNONBLANK(dim_date[full_date], [Total Transactions])
 )
+VAR LastDt = CALCULATE(
+    MAX(dim_date[full_date]),
+    LASTNONBLANK(dim_date[full_date], [Total Transactions])
+)
+VAR Years = DATEDIFF(FirstDt, LastDt, YEAR)
 RETURN IF(Years > 0 && FirstYear > 0,
     POWER(DIVIDE(LastYear, FirstYear), DIVIDE(1, Years)) - 1,
     BLANK()
@@ -517,10 +523,15 @@ Avg Premium Per Policy =
 DIVIDE([Insurance Premium INR], [Insurance Policies], 0)
 
 Insurance QoQ Growth = 
-VAR Current = [Insurance Policies]
+VAR LatestDate = MAX(silver_insurance[quarter_start_date])
+VAR PrevDate = EDATE(LatestDate, -3)
+VAR Current = CALCULATE(
+    SUM(silver_insurance[count]),
+    silver_insurance[quarter_start_date] = LatestDate
+)
 VAR Prev = CALCULATE(
-    [Insurance Policies],
-    DATEADD(dim_date[full_date], -3, MONTH)
+    SUM(silver_insurance[count]),
+    silver_insurance[quarter_start_date] = PrevDate
 )
 RETURN DIVIDE(Current - Prev, Prev, 0)
 ```
@@ -938,14 +949,24 @@ Arrange 6 **Multi-row Card** or **Card** visuals horizontally:
 
 ### Visual 4.2 — P2P vs P2M Split (Donut)
 
+First, create a calculated column on `dim_category`:
+```dax
+Payment Type = 
+SWITCH(TRUE(),
+    dim_category[is_p2p] = TRUE, "P2P",
+    dim_category[is_p2m] = TRUE, "P2M",
+    "Other"
+)
+```
+
 | Property | Value |
 |----------|-------|
 | Type | Donut Chart |
 | Size | 250 × 250 px |
-| Legend | `dim_category[is_p2p]` (True = "P2P", False = "P2M") |
+| Legend | `dim_category[Payment Type]` |
 | Values | `[Total Transactions]` |
 | Title | "P2P vs P2M Transaction Split" |
-| Colors | P2P: `#3498DB`, P2M: `#E67E22` |
+| Colors | P2P: `#3498DB`, P2M: `#E67E22`, Other: `#95A5A6` |
 
 ### Visual 4.3 — P2P vs P2M Value Split (Donut)
 
@@ -953,7 +974,7 @@ Arrange 6 **Multi-row Card** or **Card** visuals horizontally:
 |----------|-------|
 | Type | Donut Chart |
 | Size | 250 × 250 px, next to 4.2 |
-| Legend | `dim_category[is_p2p]` |
+| Legend | `dim_category[Payment Type]` |
 | Values | `[Total Value INR]` |
 | Title | "P2P vs P2M Value Split" |
 | Insight | P2P has MORE volume but P2M has HIGHER value per transaction |
@@ -1159,7 +1180,7 @@ IF(SELECTEDVALUE(silver_app_market_share[market_share_pct]) > 30, "⚠️ YES", 
 | Legend | `silver_app_market_share[app_name]` |
 | Title | "Individual App Market Share Trajectories (%)" |
 | Reference line | Horizontal at 30% (NPCI Cap), dashed red |
-| Colors | PhonePe: `#5F259F`, Google Pay: `#4285F4`, Paytm: `#00BAF2`, CRED: `#000000`, WhatsApp: `#25D366`, Others: `#95A5A6`, Amazon Pay: `#FF9900` |
+| Colors | PhonePe: `#5F259F`, Google Pay: `#4285F4`, Paytm: `#00BAF2`, CRED: `#000000`, WhatsApp Pay: `#25D366`, Others: `#95A5A6`, Amazon Pay: `#FF9900` |
 | Markers | ON for all series |
 | **Tooltip** | Use Tooltip Page T2 (App Detail) |
 
@@ -1252,7 +1273,7 @@ Create a **Bookmark** called "Paytm Collapse Story" that:
 
 **Slicer 7.B — Region:**
 - Field: `dim_geography[region]`
-- Style: Horizontal tile buttons (North, South, East, West, Central, North-East, Other)
+- Style: Horizontal tile buttons (North, South, East, West, Central, Northeast, Other)
 - Multi-select: ON
 
 ### Visual 7.1 — India Filled Map (Choropleth)
@@ -1322,7 +1343,7 @@ Create TWO bar charts side by side or use a single chart with a calculated colum
 | Legend | `dim_geography[region]` |
 | Values | Transaction count from `fact_digital_divide` (create measure) |
 | Title | "Transaction Share by Region" |
-| Colors | North: `#3498DB`, South: `#1ABC9C`, West: `#F39C12`, East: `#9B59B6`, Central: `#E67E22`, North-East: `#E74C3C`, Other: `#95A5A6` |
+| Colors | North: `#3498DB`, South: `#1ABC9C`, West: `#F39C12`, East: `#9B59B6`, Central: `#E67E22`, Northeast: `#E74C3C`, Other: `#95A5A6` |
 
 ### Visual 7.5 — State Growth Over Years (Line Chart with Small Multiples)
 
@@ -1595,7 +1616,7 @@ Create reference lines:
 | Title | "Which States Have the Most Underserved Districts?" |
 | Color | `#E74C3C` |
 | Sort | Descending |
-| Insight | North-Eastern states dominate the underserved list |
+| Insight | Northeastern states dominate the underserved list |
 
 ### Visual 9.6 — State Internal Range (Min-Max Bar)
 
@@ -2347,9 +2368,9 @@ Now hovering over a district bar/point shows this rich tooltip instead of the de
 - **What it does:** Navigates to Page 6, filters date to 2024, highlights Paytm
 - **Steps:** Go to Page 6, set date slicer to 2024, click Paytm in slicer, add annotation text box. Save bookmark.
 
-### Bookmark 3: "North-East Focus"
-- **What it does:** Filters geographic pages to North-East region
-- **Steps:** Go to Page 7, select "North-East" in region slicer. Save bookmark.
+### Bookmark 3: "Northeast Focus"
+- **What it does:** Filters geographic pages to Northeast region
+- **Steps:** Go to Page 7, select "Northeast" in region slicer. Save bookmark.
 
 ### Bookmark 4: "Underserved Districts Alert"
 - **What it does:** Shows Page 9, filters to Very Low + Low adoption tiers

@@ -378,7 +378,7 @@ class SilverTransformer:
             "Paytm": "One97 Communications",
             "CRED": "CRED (Kunal Shah)",
             "Amazon Pay": "Amazon",
-            "WhatsApp": "Meta",
+            "WhatsApp Pay": "Meta",
             "Others": "Various",
         }
         df["parent_company"] = df["app_name_clean"].map(parent_map).fillna("Other")

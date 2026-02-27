@@ -675,7 +675,7 @@ data/silver/
 **Dimension Tables:**
 | Table | Key | Description | Notable Columns |
 |-------|-----|-------------|----------------|
-| `dim_date` | `date_key` (YYYYMM) | Date dimension with Indian fiscal year and festival flags | `fiscal_year`, `fiscal_quarter`, `is_festival_month`, `festival_name` |
+| `dim_date` | `date_key` (YYYYMMDD) | Date dimension with contiguous daily dates, Indian fiscal year and festival flags | `fiscal_year`, `fiscal_quarter`, `is_festival_month`, `festival_name` |
 | `dim_geography` | `geo_key` | State and district dimension with regional classification | `state_name`, `district_name`, `region` (N/S/E/W), `is_metro` |
 | `dim_app` | `app_key` | UPI application dimension | `app_name`, `parent_company`, `launch_year`, `is_major_player` |
 | `dim_category` | `category_key` | Transaction category dimension | `category_name`, `is_p2p`, `is_p2m` |
@@ -1238,7 +1238,7 @@ rather than "cashless."
 
 ## 14. Power BI — DAX Measures Reference
 
-> **⚠️ Power BI Setup Prerequisite:** `dim_date` must be marked as a **Date table** in Power BI (`Table tools → Mark as Date Table → full_date`). The `DATEADD` functions used in Growth Metrics require this relationship to work correctly. Ensure relationships are built between fact table `date_key` (integer YYYYMM) and `dim_date.date_key`.
+> **⚠️ Power BI Setup Prerequisite:** `dim_date` must be marked as a **Date table** in Power BI (`Table tools → Mark as Date Table → full_date`). The `full_date` column contains contiguous daily dates (no gaps), which is required for Power BI Date Table validation. The `DATEADD` functions used in Growth Metrics require this relationship to work correctly. Ensure relationships are built between fact table `date_key` (integer YYYYMMDD) and `dim_date.date_key`.
 
 ### Volume & Value Metrics
 
@@ -1726,7 +1726,7 @@ During project selection, two alternative projects were evaluated before selecti
 **dim_date:**
 | Column | Type | Description |
 |--------|------|-------------|
-| `date_key` | int (PK) | YYYYMM format |
+| `date_key` | int (PK) | YYYYMMDD format |
 | `full_date` | date | Actual date |
 | `year` | int | Calendar year |
 | `quarter` | int | Calendar quarter |

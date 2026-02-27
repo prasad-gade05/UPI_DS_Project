@@ -57,7 +57,7 @@ Implemented all 4 analytical modules in `src/analytics/`:
 
 | File | Rows | Description |
 |------|------|-------------|
-| dim_date.parquet | 120 | Date dimension |
+| dim_date.parquet | ~3,653 | Date dimension (contiguous daily) |
 | dim_geography.parquet | 852 | State/district dimension |
 | dim_app.parquet | 7 | UPI app dimension |
 | dim_category.parquet | 5 | Transaction category dimension |

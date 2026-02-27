@@ -45,10 +45,10 @@ class GoldModeler:
             CREATE OR REPLACE TABLE dim_date AS
             WITH date_spine AS (
                 SELECT CAST(range AS DATE) AS full_date
-                FROM range(DATE '2017-01-01', DATE '2026-12-31', INTERVAL 1 MONTH)
+                FROM range(DATE '2017-01-01', DATE '2027-01-01', INTERVAL 1 DAY)
             )
             SELECT
-                CAST(strftime(full_date, '%Y%m') AS INTEGER) AS date_key,
+                CAST(strftime(full_date, '%Y%m%d') AS INTEGER) AS date_key,
                 full_date,
                 EXTRACT(YEAR FROM full_date)::INTEGER AS year,
                 EXTRACT(QUARTER FROM full_date)::INTEGER AS quarter,
@@ -122,7 +122,7 @@ class GoldModeler:
                 (3, 'Paytm',        'One97 Communications',    2017, TRUE),
                 (4, 'CRED',         'CRED (Kunal Shah)',       2020, FALSE),
                 (5, 'Amazon Pay',   'Amazon',                  2019, FALSE),
-                (6, 'WhatsApp',     'Meta',                    2022, FALSE),
+                (6, 'WhatsApp Pay',  'Meta',                    2022, FALSE),
                 (7, 'Others',       'Various',                 NULL, FALSE)
             ) AS t(app_key, app_name, parent_company, launch_year, is_major_player)
         """)
@@ -148,7 +148,7 @@ class GoldModeler:
         self.con.execute(f"""
             CREATE OR REPLACE TABLE fact_upi_transactions AS
             SELECT
-                CAST(year * 100 + (quarter - 1) * 3 + 1 AS INTEGER) AS date_key,
+                CAST(year * 10000 + ((quarter - 1) * 3 + 1) * 100 + 1 AS INTEGER) AS date_key,
                 category_clean AS category,
                 transaction_count AS txn_count,
                 transaction_amount AS txn_amount_inr,
@@ -178,7 +178,7 @@ class GoldModeler:
                 GROUP BY year, month
             )
             SELECT
-                CAST(year * 100 + month AS INTEGER) AS date_key,
+                CAST(year * 10000 + month * 100 + 1 AS INTEGER) AS date_key,
                 hhi_index,
                 ROUND(hhi_index, 4) AS hhi_rounded,
                 top2_combined_share,
@@ -221,7 +221,7 @@ class GoldModeler:
                 FROM upi u
             )
             SELECT
-                CAST(year * 100 + month AS INTEGER) AS date_key,
+                CAST(year * 10000 + month * 100 + 1 AS INTEGER) AS date_key,
                 upi_volume_bn,
                 upi_value_lakh_cr,
                 cic_lakh_cr,
@@ -260,7 +260,7 @@ class GoldModeler:
                 FROM district_metrics
             )
             SELECT
-                CAST(year * 100 + (quarter - 1) * 3 + 1 AS INTEGER) AS date_key,
+                CAST(year * 10000 + ((quarter - 1) * 3 + 1) * 100 + 1 AS INTEGER) AS date_key,
                 state, district,
                 total_txn_count, total_txn_amount, avg_txn_value,
                 ROUND(national_percentile * 100, 1) AS national_percentile,
@@ -297,16 +297,16 @@ class GoldModeler:
             CREATE OR REPLACE VIEW v_state_rankings AS
             SELECT
                 state,
-                (date_key / 100)::INTEGER AS year,
+                (date_key / 10000)::INTEGER AS year,
                 SUM(total_txn_count) AS annual_transactions,
                 SUM(total_txn_amount) AS annual_value,
                 COUNT(DISTINCT district) AS num_districts,
                 AVG(CASE WHEN adoption_tier = 'Very Low Adoption'
                      THEN 1.0 ELSE 0.0 END) AS pct_underserved_districts,
-                RANK() OVER (PARTITION BY (date_key / 100)::INTEGER
+                RANK() OVER (PARTITION BY (date_key / 10000)::INTEGER
                              ORDER BY SUM(total_txn_count) DESC) AS state_rank
             FROM fact_digital_divide
-            GROUP BY state, (date_key / 100)::INTEGER
+            GROUP BY state, (date_key / 10000)::INTEGER
         """)
         logger.info("Created views: v_monthly_summary, v_state_rankings")
 

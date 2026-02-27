@@ -48,8 +48,8 @@ class CashDisplacementAnalyzer:
             return None
 
         df = pd.read_parquet(fact_file)
-        # Convert date_key (YYYYMM int) to datetime
-        df["date"] = pd.to_datetime(df["date_key"].astype(str), format="%Y%m")
+        # Convert date_key (YYYYMMDD int) to datetime
+        df["date"] = pd.to_datetime(df["date_key"].astype(str), format="%Y%m%d")
         df = df.sort_values("date").reset_index(drop=True)
         return df
 

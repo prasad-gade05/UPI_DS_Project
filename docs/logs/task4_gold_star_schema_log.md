@@ -17,7 +17,7 @@ Built the complete Star Schema in DuckDB from Silver Parquets, with 10 exported 
 
 | Table | Rows | Key Feature |
 |-------|------|-------------|
-| `dim_date` | 120 | Indian fiscal year, festival flags |
+| `dim_date` | ~3,653 | Contiguous daily dates, Indian fiscal year, festival flags |
 | `dim_geography` | 852 | Region mapping, metro flag |
 | `dim_app` | 7 | Parent company, launch year |
 | `dim_category` | 5 | P2P/P2M classification |
@@ -36,4 +36,4 @@ Built the complete Star Schema in DuckDB from Silver Parquets, with 10 exported 
 
 ### Bug Fixed
 
-`v_state_rankings` referenced `year` column that doesn't exist in `fact_digital_divide` (stored as `date_key`). Fixed by extracting year: `(date_key / 100)::INTEGER`.
+`v_state_rankings` referenced `year` column that doesn't exist in `fact_digital_divide` (stored as `date_key`). Fixed by extracting year: `(date_key / 10000)::INTEGER`. The `date_key` format is YYYYMMDD (e.g., 20240101).

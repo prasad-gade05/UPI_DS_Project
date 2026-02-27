@@ -6,12 +6,12 @@
 
 ## Dimension Tables
 
-### dim_date (120 rows)
+### dim_date (~3,653 rows)
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `date_key` | INTEGER | Surrogate key, format YYYYMM (e.g., 202401) |
-| `full_date` | DATE | First day of the month |
+| `date_key` | INTEGER | Surrogate key, format YYYYMMDD (e.g., 20240101) |
+| `full_date` | DATE | Calendar date (contiguous daily, 2017-01-01 to 2026-12-31) |
 | `year` | INTEGER | Calendar year |
 | `quarter` | INTEGER | Calendar quarter (1–4) |
 | `month` | INTEGER | Calendar month (1–12) |
@@ -28,7 +28,7 @@
 | `geo_key` | INTEGER | Surrogate key |
 | `state_name` | VARCHAR | Standardized state name (Title Case, no hyphens) |
 | `district_name` | VARCHAR | Standardized district name (trailing "district" removed) |
-| `region` | VARCHAR | Geographic region: North, South, East, West, East & NE, Central, Other |
+| `region` | VARCHAR | Geographic region: North, South, East, West, Northeast, Central, Other |
 | `is_metro` | BOOLEAN | TRUE for top metros (Mumbai, Delhi, Bengaluru, etc.) |
 
 ### dim_app (7 rows)
@@ -59,7 +59,7 @@
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `date_key` | INTEGER | FK → dim_date (YYYYMM of quarter start) |
+| `date_key` | INTEGER | FK → dim_date (YYYYMMDD of quarter start, e.g., 20240101) |
 | `category` | VARCHAR | Cleaned category code |
 | `txn_count` | BIGINT | Number of transactions |
 | `txn_amount_inr` | DOUBLE | Total transaction value in INR |
@@ -73,7 +73,7 @@
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `date_key` | INTEGER | FK → dim_date (YYYYMM) |
+| `date_key` | INTEGER | FK → dim_date (YYYYMMDD, 1st of month, e.g., 20240301) |
 | `hhi_index` | DOUBLE | Herfindahl-Hirschman Index (sum of squared decimal shares) |
 | `hhi_rounded` | DOUBLE | HHI rounded to 4 decimals |
 | `top2_combined_share` | DOUBLE | PhonePe + Google Pay combined share (%) |
@@ -87,7 +87,7 @@
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `date_key` | INTEGER | FK → dim_date (YYYYMM) |
+| `date_key` | INTEGER | FK → dim_date (YYYYMMDD, 1st of month, e.g., 20240301) |
 | `upi_volume_bn` | DOUBLE | Monthly UPI transaction volume (billions) |
 | `upi_value_lakh_cr` | DOUBLE | Monthly UPI transaction value (₹ lakh crore) |
 | `cic_lakh_cr` | DOUBLE | Currency in circulation (₹ lakh crore, forward-filled from quarterly RBI data) |
@@ -100,7 +100,7 @@
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `date_key` | INTEGER | FK → dim_date (YYYYMM of quarter start) |
+| `date_key` | INTEGER | FK → dim_date (YYYYMMDD of quarter start, e.g., 20240101) |
 | `state` | VARCHAR | Standardized state name |
 | `district` | VARCHAR | Standardized district name |
 | `total_txn_count` | BIGINT | Total transactions in the quarter |
