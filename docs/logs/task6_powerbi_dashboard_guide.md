@@ -65,6 +65,7 @@ Use **Get Data → Parquet** (or Folder method) to load all 17 Gold layer export
 | `v_state_rankings` | `v_state_rankings.parquet` | 252 |
 | `hhi_analysis` | `hhi_analysis.parquet` | 13 |
 | `arima_forecast` | `arima_forecast.parquet` | 12 |
+| `forecast_combined` | `forecast_combined.parquet` | 54 |
 | `seasonal_factors` | `seasonal_factors.parquet` | 12 |
 | `state_analysis` | `state_analysis.parquet` | 36 |
 | `district_clusters` | `district_clusters.parquet` | 788 |
@@ -98,15 +99,13 @@ In Power Query Editor (Transform Data):
 
 **For `arima_forecast`:**
 1. Change `date` column type to Date
-2. Add Custom Column: `is_forecast` = `true` (constant)
+
+**For `forecast_combined`** (pre-built — no manual append needed):
+1. Change `date` column type to Date
+2. This table already contains `date`, `volume_bn`, and `is_forecast` (true/false) combining silver_npci_monthly actuals with ARIMA forecasts — 54 rows total
 
 **For `silver_npci_monthly`:**
 1. Change `date` to Date type
-2. Add Custom Column: `is_forecast` = `false`
-3. Select columns: `date`, `transaction_volume_billions` (rename to `volume_bn`)
-4. Append this with `arima_forecast` into a new table called `forecast_combined`:
-   - Home → Append Queries as New
-   - Map: `date` → `date`, `volume_bn` → `arima_forecast_bn`, `is_forecast`
 
 **For all fact tables:**
 - Ensure `date_key` columns are Integer type (not text)
@@ -1797,24 +1796,19 @@ RETURN (1 - gini) * 0.4 + (1 - underserved_pct) * 0.3 + high_pct * 0.3
 | Type | Line Chart |
 | Size | Full width, 350 px (hero visual) |
 
-**This is a complex visual requiring data preparation:**
+**This visual uses the pre-built `forecast_combined` table** (loaded from `forecast_combined.parquet`):
 
-You need a combined table. In Power Query:
-1. Create a new query `forecast_combined` by appending:
-   - `silver_npci_monthly`: select `date`, `transaction_volume_billions` (rename to `value`), add column `type` = "Actual"
-   - `arima_forecast`: select `date`, `arima_forecast_bn` (rename to `value`), add column `type` = "Forecast"
-
-2. Also create columns for confidence bands from `arima_forecast`:
-   - `upper_bound` and `lower_bound`
+The table contains `date`, `volume_bn`, and `is_forecast` (true = ARIMA forecast, false = actual).
+For confidence bands, also bring in `arima_forecast[arima_upper_bn]` and `arima_forecast[arima_lower_bn]`.
 
 **In the Line Chart:**
 | Field | Source |
 |-------|--------|
 | X-Axis | `forecast_combined[date]` |
-| Y-Axis Line 1 | Actual values (filter: `type` = "Actual") |
-| Y-Axis Line 2 | Forecast values (filter: `type` = "Forecast") |
-| Y-Axis Line 3 | Upper confidence bound |
-| Y-Axis Line 4 | Lower confidence bound |
+| Y-Axis Line 1 | Actual values (filter: `is_forecast` = FALSE) |
+| Y-Axis Line 2 | Forecast values (filter: `is_forecast` = TRUE) |
+| Y-Axis Line 3 | Upper confidence bound (`arima_forecast[arima_upper_bn]`) |
+| Y-Axis Line 4 | Lower confidence bound (`arima_forecast[arima_lower_bn]`) |
 
 **Alternative (simpler):** Use TWO line charts overlaid, or use the **Area between lines** feature:
 - Actual line: solid `#1ABC9C`, 2px
@@ -1824,15 +1818,14 @@ You need a combined table. In Power Query:
 | Title | "UPI Monthly Volume: Actual + 12-Month ARIMA Forecast" |
 | Reference line | Vertical line at the actual/forecast boundary, labeled "Forecast starts here →" |
 
-**DAX for combined visual (if not using Power Query):**
+**DAX for combined visual (alternative to using forecast_combined table directly):**
 ```dax
 Combined Volume = 
-VAR actual = SELECTEDVALUE(silver_npci_monthly[transaction_volume_billions])
-VAR forecast = SELECTEDVALUE(arima_forecast[arima_forecast_bn])
-RETURN IF(NOT ISBLANK(actual), actual, forecast)
+VAR actual = SELECTEDVALUE(forecast_combined[volume_bn])
+RETURN actual
 
 Is Forecast Period = 
-IF(ISBLANK(SELECTEDVALUE(silver_npci_monthly[transaction_volume_billions])), "Forecast", "Actual")
+IF(SELECTEDVALUE(forecast_combined[is_forecast]) = TRUE(), "Forecast", "Actual")
 ```
 
 ### Visual 11.2 — Forecast Summary Cards (3 cards)

@@ -43,7 +43,7 @@ class UPIForecaster:
             arima_forecast = self._run_arima(df)
             decomposition = self._seasonal_decomposition(df)
 
-            self._save_forecasts(prophet_forecast, arima_forecast, decomposition)
+            self._save_forecasts(df, prophet_forecast, arima_forecast, decomposition)
             return True
 
         except Exception as e:
@@ -175,7 +175,28 @@ class UPIForecaster:
             logger.warning(f"Seasonal decomposition failed: {e}")
             return {}
 
-    def _save_forecasts(self, prophet_fc, arima_fc, decomposition):
+    def _build_forecast_combined(self, silver_df: pd.DataFrame, arima_fc: pd.DataFrame) -> pd.DataFrame:
+        """Combine silver actuals with ARIMA forecasts into a unified table.
+
+        Schema: date (datetime), volume_bn (float), is_forecast (bool)
+        """
+        # Silver side: cast date, select & rename, flag as actual
+        actuals = silver_df[["date", "transaction_volume_billions"]].copy()
+        actuals["date"] = pd.to_datetime(actuals["date"])
+        actuals = actuals.rename(columns={"transaction_volume_billions": "volume_bn"})
+        actuals["is_forecast"] = False
+
+        # ARIMA side: select & rename, flag as forecast
+        forecasts = arima_fc[["date", "arima_forecast_bn"]].copy()
+        forecasts["date"] = pd.to_datetime(forecasts["date"])
+        forecasts = forecasts.rename(columns={"arima_forecast_bn": "volume_bn"})
+        forecasts["is_forecast"] = True
+
+        combined = pd.concat([actuals, forecasts], ignore_index=True)
+        combined = combined.sort_values("date").reset_index(drop=True)
+        return combined
+
+    def _save_forecasts(self, silver_df, prophet_fc, arima_fc, decomposition):
         """Save forecast results."""
         self.output_path.mkdir(parents=True, exist_ok=True)
 
@@ -190,6 +211,15 @@ class UPIForecaster:
                 self.output_path / "arima_forecast.parquet", index=False
             )
             logger.success("ARIMA forecast saved")
+
+            # Build and save forecast_combined (actuals + ARIMA forecasts)
+            combined = self._build_forecast_combined(silver_df, arima_fc)
+            combined.to_parquet(
+                self.output_path / "forecast_combined.parquet", index=False
+            )
+            logger.success(f"forecast_combined saved — {len(combined)} rows "
+                           f"(actuals: {(~combined['is_forecast']).sum()}, "
+                           f"forecasts: {combined['is_forecast'].sum()})")
 
         if decomposition:
             seasonal_df = pd.DataFrame({
