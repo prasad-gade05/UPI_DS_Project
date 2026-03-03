@@ -91,13 +91,13 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 },
             )
             if fig_choro is not None:
-                st.plotly_chart(fig_choro, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_choro, width="stretch", config=PLOTLY_CONFIG)
             else:
                 fig_fb = create_state_bar_map_fallback(
                     sa, state_col="state_clean", value_col=color_col,
                     title=f"Top 15 States — {map_metric}",
                 )
-                st.plotly_chart(fig_fb, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_fb, width="stretch", config=PLOTLY_CONFIG)
                 st.caption("Map will render when GeoJSON is available.")
 
         with col_map2:
@@ -109,7 +109,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 color_scale="RdYlGn_r",
             )
             if fig_bubble is not None:
-                st.plotly_chart(fig_bubble, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_bubble, width="stretch", config=PLOTLY_CONFIG)
             else:
                 st.info("Bubble map requires state coordinate data.")
 
@@ -147,7 +147,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     "num_districts": "Districts",
                     "pct_underserved": "% Underserved",
                 }),
-                use_container_width=True, hide_index=True, height=400,
+                width="stretch", hide_index=True, height=400,
                 column_config={
                     "Txns (Bn)": st.column_config.NumberColumn(format="%.2f"),
                     "% Underserved": st.column_config.ProgressColumn(
@@ -169,7 +169,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 title="Regional Distribution of UPI",
                 color_discrete_map=REGION_COLORS,
             )
-            st.plotly_chart(fig_region, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_region, width="stretch", config=PLOTLY_CONFIG)
 
     # Adoption tier treemap — full width below the columns
     if "district_clusters" in data and not data["district_clusters"].empty:
@@ -186,7 +186,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             height=600,
         )
         fig_tree.update_layout(margin=dict(l=10, r=10, t=50, b=10))
-        st.plotly_chart(fig_tree, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_tree, width="stretch", config=PLOTLY_CONFIG)
 
     #  District Drill-Down 
     render_divider()
@@ -231,7 +231,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     title=f"Districts in {selected_state} — Transaction Volume",
                     height=450,
                 )
-                st.plotly_chart(fig_district, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_district, width="stretch", config=PLOTLY_CONFIG)
 
             with col_d2:
                 # Adoption tier breakdown
@@ -252,7 +252,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     color="adoption_tier", color_discrete_map=CLUSTER_COLORS,
                     height=450,
                 )
-                st.plotly_chart(fig_tier, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_tier, width="stretch", config=PLOTLY_CONFIG)
 
             # District detail table
             with st.expander(f"All {n_districts} Districts in {selected_state}", expanded=False):
@@ -268,7 +268,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                         "adoption_tier": "Adoption Tier",
                     })
                 )
-                st.dataframe(display_df, use_container_width=True, hide_index=True,
+                st.dataframe(display_df, width="stretch", hide_index=True,
                              height=min(400, 35 * n_districts + 50))
 
     #  Cluster Distribution + Top/Bottom 
@@ -291,7 +291,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 title="All Districts by Adoption Tier",
                 color="adoption_tier", color_discrete_map=CLUSTER_COLORS,
             )
-            st.plotly_chart(fig_cluster, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_cluster, width="stretch", config=PLOTLY_CONFIG)
 
     with col2:
         if "fact_digital_divide" in data and not data["fact_digital_divide"].empty:
@@ -313,7 +313,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     top_10[["#", "state", "district", "total_txns"]].rename(columns={
                         "state": "State", "district": "District", "total_txns": "Transactions",
                     }),
-                    use_container_width=True, hide_index=True,
+                    width="stretch", hide_index=True,
                 )
             with bottom_tab:
                 bottom_10 = district_agg.tail(10).sort_values("total_txns").reset_index(drop=True)
@@ -322,7 +322,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     bottom_10[["#", "state", "district", "total_txns"]].rename(columns={
                         "state": "State", "district": "District", "total_txns": "Transactions",
                     }),
-                    use_container_width=True, hide_index=True,
+                    width="stretch", hide_index=True,
                 )
 
     render_insight(

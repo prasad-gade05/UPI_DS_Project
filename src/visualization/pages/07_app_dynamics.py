@@ -79,7 +79,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         title="Market Share Trajectory by App",
         color=app_col, color_discrete_map=APP_COLORS,
     )
-    st.plotly_chart(fig_lines, use_container_width=True, config=PLOTLY_CONFIG)
+    st.plotly_chart(fig_lines, width="stretch", config=PLOTLY_CONFIG)
 
     #  3 & 4: Horizontal Bar + Stacked Area side-by-side 
     col1, col2 = st.columns(2)
@@ -96,7 +96,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             x=30, line_dash="dash", line_color="red", opacity=0.6,
             annotation_text="NPCI 30% Cap",
         )
-        st.plotly_chart(fig_bar, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_bar, width="stretch", config=PLOTLY_CONFIG)
 
     with col2:
         render_section_header("Market Share Evolution (100% Stacked)")
@@ -105,7 +105,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             title="Market Share Evolution Over Time",
             color_discrete_map=APP_COLORS,
         )
-        st.plotly_chart(fig_area, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_area, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 
@@ -141,7 +141,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 text=f"Peak: {paytm_peak:.1f}%",
                 showarrow=True, arrowhead=2, ax=40, ay=-30,
             )
-            st.plotly_chart(fig_paytm, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_paytm, width="stretch", config=PLOTLY_CONFIG)
             render_divider()
 
     #  6. App Comparison Table 
@@ -157,7 +157,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         merge_cols = [c for c in dim.columns if c != "app_key"]
         table_df = table_df.merge(dim[merge_cols], on="App", how="left")
 
-    st.dataframe(table_df, use_container_width=True, hide_index=True)
+    st.dataframe(table_df, width="stretch", hide_index=True)
 
     render_divider()
 
@@ -181,7 +181,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 y=60, line_dash="dash", line_color="orange", opacity=0.5,
                 annotation_text="60% threshold",
             )
-            st.plotly_chart(fig_duo, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_duo, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 

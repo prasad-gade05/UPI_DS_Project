@@ -84,7 +84,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         title="Registered Users Over Time",
         area_fill=True,
     )
-    st.plotly_chart(fig_users, use_container_width=True, config=PLOTLY_CONFIG)
+    st.plotly_chart(fig_users, width="stretch", config=PLOTLY_CONFIG)
 
     #  Section 2: App Opens Trend 
     render_section_header("App Opens Trend")
@@ -96,7 +96,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         title="Quarterly App Opens",
         markers=True,
     )
-    st.plotly_chart(fig_opens, use_container_width=True, config=PLOTLY_CONFIG)
+    st.plotly_chart(fig_opens, width="stretch", config=PLOTLY_CONFIG)
 
     #  Section 3: QoQ User Growth Rate 
     render_section_header("Quarter-over-Quarter User Growth Rate")
@@ -112,7 +112,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             y="qoq_growth",
             title="QoQ Registered-User Growth (%)",
         )
-        st.plotly_chart(fig_growth, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_growth, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 
@@ -147,7 +147,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 names="brand",
                 title="Device Brand Market Share (Latest Quarter)",
             )
-            st.plotly_chart(fig_donut, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_donut, width="stretch", config=PLOTLY_CONFIG)
 
         # -- Stacked area: top 5 brands over time --
         with col_evolution:
@@ -169,7 +169,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     color=brand_col,
                     title="Top 5 Device Brands Over Time",
                 )
-                st.plotly_chart(fig_evo, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_evo, width="stretch", config=PLOTLY_CONFIG)
 
         render_divider()
 
@@ -195,7 +195,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     y="total_count",
                     title="Insurance Policy Count by Quarter",
                 )
-                st.plotly_chart(fig_ins_bar, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_ins_bar, width="stretch", config=PLOTLY_CONFIG)
 
             with col_area:
                 fig_ins_area = create_line_chart(
@@ -205,7 +205,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     title="Insurance Count Growth Trend",
                     area_fill=True,
                 )
-                st.plotly_chart(fig_ins_area, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_ins_area, width="stretch", config=PLOTLY_CONFIG)
 
             render_divider()
 

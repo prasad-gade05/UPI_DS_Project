@@ -74,7 +74,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         y1_name="UPI Value (₹ Lakh Cr)", y2_name="Currency in Circulation (₹ Lakh Cr)",
         y1_color="#1A73E8", y2_color="#00C853",
     )
-    st.plotly_chart(fig_dual, use_container_width=True, config=PLOTLY_CONFIG)
+    st.plotly_chart(fig_dual, width="stretch", config=PLOTLY_CONFIG)
 
     #  Ratio Trend + Growth Comparison (side by side) 
     render_divider()
@@ -86,7 +86,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             title="Digital-to-Cash Ratio Trend",
             area_fill=True,
         )
-        st.plotly_chart(fig_ratio, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_ratio, width="stretch", config=PLOTLY_CONFIG)
 
     with col2:
         yearly = df.groupby("year", as_index=False).agg(
@@ -112,7 +112,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 color="metric",
                 color_discrete_map={"UPI Growth": "#1A73E8", "Cash Growth": "#00C853"},
             )
-            st.plotly_chart(fig_growth, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_growth, width="stretch", config=PLOTLY_CONFIG)
 
     #  Velocity Analysis (if cash_displacement_analysis available) 
     if "cash_displacement_analysis" in data and not data["cash_displacement_analysis"].empty:
@@ -130,7 +130,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                         title="Displacement Velocity",
                         markers=True,
                     )
-                    st.plotly_chart(fig_vel, use_container_width=True, config=PLOTLY_CONFIG)
+                    st.plotly_chart(fig_vel, width="stretch", config=PLOTLY_CONFIG)
 
         with col2:
             if "trend" in cda.columns:
@@ -140,7 +140,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     trend_counts, x="trend", y="count",
                     title="Trend Classification Distribution",
                 )
-                st.plotly_chart(fig_trend, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_trend, width="stretch", config=PLOTLY_CONFIG)
 
     #  ATM Transaction Comparison 
     if "rbi_atm_transactions" in data and not data["rbi_atm_transactions"].empty:
@@ -155,7 +155,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             title="Quarterly ATM Transactions (Millions)",
             markers=True,
         )
-        st.plotly_chart(fig_atm, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_atm, width="stretch", config=PLOTLY_CONFIG)
 
     #  Insight Box 
     render_insight(

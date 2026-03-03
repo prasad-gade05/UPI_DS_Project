@@ -101,7 +101,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             title="Yearly Transaction Volume (Billions)",
             color_continuous_scale="Purples",
         )
-        st.plotly_chart(fig_vol, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_vol, width="stretch", config=PLOTLY_CONFIG)
 
     with col2:
         fig_val = create_bar_chart(
@@ -109,7 +109,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             title="Yearly Transaction Value (₹ Lakh Crores)",
             color_continuous_scale="Blues",
         )
-        st.plotly_chart(fig_val, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_val, width="stretch", config=PLOTLY_CONFIG)
 
     #  Monthly Trend + Category Breakdown (side by side) 
     col1, col2 = st.columns([3, 2])
@@ -129,7 +129,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 title="Monthly Transaction Trend (Billions)",
                 area_fill=True, markers=True,
             )
-            st.plotly_chart(fig_monthly, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_monthly, width="stretch", config=PLOTLY_CONFIG)
         else:
             st.info("Monthly summary data not available.")
 
@@ -152,7 +152,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 title=f"Transaction Categories ({latest_year})",
                 color_discrete_map=CATEGORY_COLORS,
             )
-            st.plotly_chart(fig_cat, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_cat, width="stretch", config=PLOTLY_CONFIG)
         else:
             st.info("Category breakdown data not available.")
 
@@ -169,7 +169,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 "Volume Growth %": "{:+.1f}%",
                 "Value Growth %": "{:+.1f}%",
             }, na_rep="—"),
-            use_container_width=True, hide_index=True,
+            width="stretch", hide_index=True,
         )
 
     render_insight(

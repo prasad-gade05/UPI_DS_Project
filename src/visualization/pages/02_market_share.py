@@ -66,7 +66,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             title="HHI Index (Current)",
             max_val=0.5,
         )
-        st.plotly_chart(fig_gauge, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_gauge, width="stretch", config=PLOTLY_CONFIG)
 
         # NPCI Cap Compliance
         st.markdown("##### NPCI 30% Cap Compliance")
@@ -86,7 +86,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             df, x="period", y="hhi_index",
             title="HHI Trend — Market Concentration Over Time (DOJ Thresholds)",
         )
-        st.plotly_chart(fig_hhi, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_hhi, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 
@@ -108,7 +108,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 title="Market Share Evolution (100% Stacked)",
                 color_discrete_map=APP_COLORS,
             )
-            st.plotly_chart(fig_area, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_area, width="stretch", config=PLOTLY_CONFIG)
         else:
             st.info("App-level market share data not available.")
 
@@ -128,7 +128,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             )
             fig_bar.add_vline(x=30, line_dash="dash", line_color="red", opacity=0.6,
                               annotation_text="NPCI 30% Cap")
-            st.plotly_chart(fig_bar, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_bar, width="stretch", config=PLOTLY_CONFIG)
 
     #  Treemap of Market Share 
     if "app_market_share" in data and not data["app_market_share"].empty:
@@ -146,7 +146,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             color="market_share_pct",
             color_continuous_scale="Purples",
         )
-        st.plotly_chart(fig_tree, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_tree, width="stretch", config=PLOTLY_CONFIG)
 
     #  Insight Box 
     top2 = latest["top2_combined_share"] if "top2_combined_share" in df.columns else 0

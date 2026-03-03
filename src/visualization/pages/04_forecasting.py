@@ -128,7 +128,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         yaxis_title="Monthly Transactions (Bn)",
         xaxis_title="",
     )
-    st.plotly_chart(apply_common_layout(fig), use_container_width=True, config=PLOTLY_CONFIG)
+    st.plotly_chart(apply_common_layout(fig), width="stretch", config=PLOTLY_CONFIG)
 
     #  Seasonal Factors + ARIMA Details (side by side) 
     render_divider()
@@ -147,7 +147,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 sf, x="month_name", y="seasonal_factor",
                 title="Monthly Seasonal Factors",
             )
-            st.plotly_chart(fig_seasonal, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_seasonal, width="stretch", config=PLOTLY_CONFIG)
         else:
             st.info("Seasonal factor data not available.")
 
@@ -159,7 +159,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             arima_display.columns = ["Month", "Forecast (Bn)", "Lower CI", "Upper CI"]
             for c in ["Forecast (Bn)", "Lower CI", "Upper CI"]:
                 arima_display[c] = arima_display[c].apply(lambda x: f"{x:.2f}")
-            st.dataframe(arima_display, use_container_width=True, hide_index=True)
+            st.dataframe(arima_display, width="stretch", hide_index=True)
 
             # Model comparison
             st.markdown("##### Model Comparison")
@@ -171,7 +171,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     "Final Forecast (Bn)": [f"{prophet_end:.2f}", f"{arima_end:.2f}"],
                     "Method": ["Additive decomposition", "Auto-regressive"],
                 })
-                st.dataframe(comparison, use_container_width=True, hide_index=True)
+                st.dataframe(comparison, width="stretch", hide_index=True)
         else:
             st.info("ARIMA forecast data not available.")
 

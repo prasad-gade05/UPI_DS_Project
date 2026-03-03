@@ -83,7 +83,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         title="UPI Monthly Transaction Volume (Billions)",
         area_fill=True, markers=True,
     )
-    st.plotly_chart(fig_volume, use_container_width=True, config=PLOTLY_CONFIG)
+    st.plotly_chart(fig_volume, width="stretch", config=PLOTLY_CONFIG)
 
     #  2. YoY Growth Rate + 3. Heatmap (side by side) 
     col1, col2 = st.columns(2)
@@ -98,7 +98,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 area_fill=False, markers=True,
             )
             fig_yoy.update_layout(yaxis_tickformat=".0%")
-            st.plotly_chart(fig_yoy, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig_yoy, width="stretch", config=PLOTLY_CONFIG)
         else:
             st.info("YoY growth data not available for the selected range.")
 
@@ -122,7 +122,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             title="Volume Heatmap (Bn) — Month × Year",
             x_label="Month", y_label="Year",
         )
-        st.plotly_chart(fig_heat, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_heat, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 
@@ -142,7 +142,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         color="year_str",
         title="Quarterly Transaction Volume by Year (Billions)",
     )
-    st.plotly_chart(fig_qtr, use_container_width=True, config=PLOTLY_CONFIG)
+    st.plotly_chart(fig_qtr, width="stretch", config=PLOTLY_CONFIG)
 
     #  5. Average Transaction Value Trend 
     render_section_header("Average Transaction Value Trend")
@@ -154,7 +154,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             area_fill=False, markers=True,
         )
         fig_avg.update_layout(yaxis_title="Avg Value (₹)")
-        st.plotly_chart(fig_avg, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_avg, width="stretch", config=PLOTLY_CONFIG)
     else:
         st.info("Average transaction value data not available.")
 
@@ -189,7 +189,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     title="Avg Monthly Transactions: Festival vs Non-Festival",
                 )
                 fig_fest.update_traces(marker_color=["#FF9900", "#1A73E8"])
-                st.plotly_chart(fig_fest, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_fest, width="stretch", config=PLOTLY_CONFIG)
 
             with col_b:
                 val_comparison = pd.DataFrame({
@@ -201,14 +201,14 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     title="Avg Transaction Value: Festival vs Non-Festival",
                 )
                 fig_val.update_traces(marker_color=["#FF9900", "#1A73E8"])
-                st.plotly_chart(fig_val, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_val, width="stretch", config=PLOTLY_CONFIG)
 
             # Festival month details
             if not festival.empty and "festival_name" in festival.columns:
                 st.markdown("**Festival Months in Data:**")
                 fest_display = festival[["year", "month_name", "festival_name"]].copy()
                 fest_display.columns = ["Year", "Month", "Festival"]
-                st.dataframe(fest_display, use_container_width=True, hide_index=True)
+                st.dataframe(fest_display, width="stretch", hide_index=True)
 
             # Uplift percentage
             if non_fest_avg > 0:

@@ -167,7 +167,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         }
     )
 
-    st.dataframe(sources_df, use_container_width=True, hide_index=True)
+    st.dataframe(sources_df, width="stretch", hide_index=True)
 
     render_divider()
 
@@ -216,7 +216,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 for col, pct in nulls.items()
             ]
         )
-        st.dataframe(null_df, use_container_width=True, hide_index=True)
+        st.dataframe(null_df, width="stretch", hide_index=True)
     else:
         q4.metric("Avg Null % (Fact Table)", "N/A")
 
@@ -227,7 +227,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 for name, df in sorted(data.items())
             ]
         )
-        st.dataframe(inventory, use_container_width=True, hide_index=True)
+        st.dataframe(inventory, width="stretch", hide_index=True)
 
     render_insight(
         f"Pipeline loaded <strong>{total_tables} tables</strong> with "
@@ -349,7 +349,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             ],
         }
     )
-    st.dataframe(tech_df, use_container_width=True, hide_index=True)
+    st.dataframe(tech_df, width="stretch", hide_index=True)
 
     render_divider()
 

@@ -85,7 +85,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         color="adoption_tier",
         color_discrete_map=CLUSTER_COLORS,
     )
-    st.plotly_chart(fig_cluster, use_container_width=True, config=PLOTLY_CONFIG)
+    st.plotly_chart(fig_cluster, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 
@@ -103,7 +103,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         color_discrete_map=CLUSTER_COLORS,
         log_x=True,
     )
-    st.plotly_chart(fig_scatter, use_container_width=True, config=PLOTLY_CONFIG)
+    st.plotly_chart(fig_scatter, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 
@@ -124,7 +124,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 "state_clean": "State",
                 "total_txn": "Total Transactions",
             }),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
@@ -136,7 +136,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 "state_clean": "State",
                 "total_txn": "Total Transactions",
             }),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
@@ -159,7 +159,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             title="Intra-State Gini Coefficient (Higher = More Inequality)",
         )
         fig_gini.update_layout(yaxis=dict(categoryorder="total ascending"))
-        st.plotly_chart(fig_gini, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_gini, width="stretch", config=PLOTLY_CONFIG)
 
         render_divider()
 
@@ -175,7 +175,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 "district_clean": "District",
                 "total_txn": "Total Transactions",
             }),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
             height=400,
         )
@@ -197,7 +197,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         height=600,
     )
     fig_treemap.update_layout(margin=dict(l=10, r=10, t=50, b=10))
-    st.plotly_chart(fig_treemap, use_container_width=True, config=PLOTLY_CONFIG)
+    st.plotly_chart(fig_treemap, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 
@@ -227,7 +227,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             color="adoption_tier",
             color_discrete_map=CLUSTER_COLORS,
         )
-        st.plotly_chart(fig_state, use_container_width=True, config=PLOTLY_CONFIG)
+        st.plotly_chart(fig_state, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 
