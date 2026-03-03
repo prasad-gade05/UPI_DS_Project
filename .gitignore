@@ -13,6 +13,10 @@ data/**/*.duckdb
 data/**/*.duckdb.wal
 data/**/*.geojson
 
+# EXCEPT: Gold exports needed by Streamlit Cloud deployment
+!data/gold/exports/
+!data/gold/exports/*.parquet
+
 # ── Python ─────────────────────────────────────────
 __pycache__/
 *.py[cod]
