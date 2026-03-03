@@ -133,7 +133,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         ["transaction_volume_billions"].sum()
     )
     quarterly["year_str"] = quarterly["year"].astype(str)
-    quarterly["quarter_label"] = "Q" + quarterly["fiscal_quarter"].astype(int).astype(str)
+    quarterly["quarter_label"] = quarterly["fiscal_quarter"].astype(str)
+    if not quarterly["quarter_label"].str.startswith("Q").all():
+        quarterly["quarter_label"] = "Q" + quarterly["quarter_label"]
 
     fig_qtr = create_grouped_bar(
         quarterly, x="quarter_label", y="transaction_volume_billions",

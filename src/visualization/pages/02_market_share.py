@@ -134,12 +134,12 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     if "app_market_share" in data and not data["app_market_share"].empty:
         share_df = data["app_market_share"].copy()
         max_date = share_df["date"].max()
-        latest = share_df[share_df["date"] == max_date].copy()
-        app_col = "app_name_clean" if "app_name_clean" in latest.columns else "app_name"
-        latest["market_label"] = "UPI Market"
+        treemap_latest = share_df[share_df["date"] == max_date].copy()
+        app_col = "app_name_clean" if "app_name_clean" in treemap_latest.columns else "app_name"
+        treemap_latest["market_label"] = "UPI Market"
 
         fig_tree = create_treemap(
-            latest,
+            treemap_latest,
             path=["market_label", app_col],
             values="market_share_pct",
             title="🗂️ UPI Market Share Treemap (Latest Month)",
@@ -149,13 +149,15 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         st.plotly_chart(fig_tree, use_container_width=True, config=PLOTLY_CONFIG)
 
     # ── Insight Box ──────────────────────────────────────────────
+    top2 = latest["top2_combined_share"] if "top2_combined_share" in df.columns else 0
+    eq_firms = latest["equivalent_firms"] if "equivalent_firms" in df.columns else 0
     if hhi_val > 0.25:
         render_insight(
             f"<b>⚠️ Highly Concentrated Market:</b> India's UPI market has an HHI of "
             f"<b>{hhi_val:.4f}</b>, classified as 'Highly Concentrated' by US DOJ standards. "
-            f"PhonePe + Google Pay together control <b>~{latest['top2_combined_share']:.1f}%</b> "
+            f"PhonePe + Google Pay together control <b>~{top2:.1f}%</b> "
             f"of all UPI transactions. The market effectively behaves as if it has only "
-            f"<b>{latest['equivalent_firms']:.1f}</b> competing firms. "
+            f"<b>{eq_firms:.1f}</b> competing firms. "
             f"NPCI's proposed 30% market share cap could fundamentally reshape this landscape.",
             variant="warning",
         )
