@@ -7,6 +7,22 @@ from pathlib import Path
 GOLD_EXPORTS = Path("data/gold/exports")
 SILVER_DIR = Path("data/silver")
 
+# Silver files that supplement the Gold layer.
+# On Streamlit Cloud, these are pre-copied into gold/exports.
+# Locally, they fall back to the silver directory.
+_SILVER_FALLBACKS = {
+    "app_market_share": "market_share/app_market_share.parquet",
+    "phonepe_user_aggregates": "users/phonepe_user_aggregates.parquet",
+    "phonepe_device_brands": "users/phonepe_device_brands.parquet",
+    "phonepe_insurance": "transactions/phonepe_insurance.parquet",
+    "rbi_atm_transactions": "transactions/rbi_atm_transactions.parquet",
+    "npci_monthly_volumes": "transactions/npci_monthly_volumes.parquet",
+    "rbi_currency_circulation": "transactions/rbi_currency_circulation.parquet",
+    "phonepe_top_transactions": "transactions/phonepe_top_transactions.parquet",
+    "district_transactions": "geographic/district_transactions.parquet",
+    "state_transactions": "geographic/state_transactions.parquet",
+}
+
 
 @st.cache_data(ttl=3600)
 def load_all_data() -> dict[str, pd.DataFrame]:
@@ -16,32 +32,22 @@ def load_all_data() -> dict[str, pd.DataFrame]:
 
     data: dict[str, pd.DataFrame] = {}
 
+    # 1. Load everything from gold/exports (includes copied silver files on Cloud)
     for pf in GOLD_EXPORTS.glob("*.parquet"):
         try:
             data[pf.stem] = pd.read_parquet(pf)
         except Exception:
             continue
 
-    silver_files = {
-        "app_market_share": "market_share/app_market_share.parquet",
-        "phonepe_user_aggregates": "users/phonepe_user_aggregates.parquet",
-        "phonepe_device_brands": "users/phonepe_device_brands.parquet",
-        "phonepe_insurance": "transactions/phonepe_insurance.parquet",
-        "rbi_atm_transactions": "transactions/rbi_atm_transactions.parquet",
-        "npci_monthly_volumes": "transactions/npci_monthly_volumes.parquet",
-        "rbi_currency_circulation": "transactions/rbi_currency_circulation.parquet",
-        "phonepe_top_transactions": "transactions/phonepe_top_transactions.parquet",
-        "district_transactions": "geographic/district_transactions.parquet",
-        "state_transactions": "geographic/state_transactions.parquet",
-    }
-
-    for key, rel_path in silver_files.items():
-        path = SILVER_DIR / rel_path
-        if path.exists():
-            try:
-                data[key] = pd.read_parquet(path)
-            except Exception:
-                continue
+    # 2. Fallback: load from silver if not already loaded from gold
+    for key, rel_path in _SILVER_FALLBACKS.items():
+        if key not in data:
+            path = SILVER_DIR / rel_path
+            if path.exists():
+                try:
+                    data[key] = pd.read_parquet(path)
+                except Exception:
+                    continue
 
     return data
 

@@ -16,24 +16,24 @@ The pipeline processes 235+ billion transactions worth 345+ trillion INR, spanni
 
 Three independent, publicly available data sources are used. Each covers a different aspect of UPI.
 
-| Source | What It Contains | Time Period | Why We Use It |
-|--------|-----------------|-------------|---------------|
-| [PhonePe Pulse](https://github.com/PhonePe/pulse) | District-level UPI transactions, user registrations, device brands, insurance data across 788 districts | Q1 2018 -- Q2 2025 | Only publicly available district-level UPI data in India. 9,026 JSON files parsed from their GitHub repo. |
-| [NPCI](https://www.npci.org.in/what-we-do/upi/upi-ecosystem-statistics) | Official monthly UPI volumes, per-app market share | Jan 2022 -- Jun 2025 (monthly) | Ground truth for total UPI volume. NPCI operates UPI. |
-| [RBI DBIE](https://dbie.rbi.org.in) | Currency in Circulation (quarterly), ATM transaction volumes | Q1 2019 -- Q2 2025 | Central bank data needed for cash displacement analysis. Most authoritative source for physical cash metrics. |
+| Source                                                                  | What It Contains                                                                                        | Time Period                    | Why We Use It                                                                                                 |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| [PhonePe Pulse](https://github.com/PhonePe/pulse)                       | District-level UPI transactions, user registrations, device brands, insurance data across 788 districts | Q1 2018 -- Q2 2025             | Only publicly available district-level UPI data in India. 9,026 JSON files parsed from their GitHub repo.     |
+| [NPCI](https://www.npci.org.in/what-we-do/upi/upi-ecosystem-statistics) | Official monthly UPI volumes, per-app market share                                                      | Jan 2022 -- Jun 2025 (monthly) | Ground truth for total UPI volume. NPCI operates UPI.                                                         |
+| [RBI DBIE](https://dbie.rbi.org.in)                                     | Currency in Circulation (quarterly), ATM transaction volumes                                            | Q1 2019 -- Q2 2025             | Central bank data needed for cash displacement analysis. Most authoritative source for physical cash metrics. |
 
 ### Key Tables Produced
 
-| Table | Records | Description |
-|-------|---------|-------------|
-| `fact_upi_transactions` | 140 | Yearly category-level transaction totals (5 categories x 7 years x 4 quarters) |
-| `fact_market_concentration` | 13 | Monthly HHI index, top-2 share, equivalent firms, concentration classification |
-| `fact_cash_displacement` | 34 | Monthly UPI value vs currency in circulation with digital-to-cash ratio |
-| `district_clusters` | 788 | Every district classified into 4 adoption tiers via K-Means clustering |
-| `state_analysis` | 36 | Per-state metrics including intra-state Gini coefficient |
-| `forecast_combined` | 54 | 42 actual + 12 forecast months (Prophet + ARIMA projections) |
-| `npci_monthly_volumes` | 42 | Monthly transaction volumes with YoY growth and fiscal year mapping |
-| `app_market_share` | 91 | Per-app market share with parent company mapping |
+| Table                       | Records | Description                                                                    |
+| --------------------------- | ------- | ------------------------------------------------------------------------------ |
+| `fact_upi_transactions`     | 140     | Yearly category-level transaction totals (5 categories x 7 years x 4 quarters) |
+| `fact_market_concentration` | 13      | Monthly HHI index, top-2 share, equivalent firms, concentration classification |
+| `fact_cash_displacement`    | 34      | Monthly UPI value vs currency in circulation with digital-to-cash ratio        |
+| `district_clusters`         | 788     | Every district classified into 4 adoption tiers via K-Means clustering         |
+| `state_analysis`            | 36      | Per-state metrics including intra-state Gini coefficient                       |
+| `forecast_combined`         | 54      | 42 actual + 12 forecast months (Prophet + ARIMA projections)                   |
+| `npci_monthly_volumes`      | 42      | Monthly transaction volumes with YoY growth and fiscal year mapping            |
+| `app_market_share`          | 91      | Per-app market share with parent company mapping                               |
 
 See [`technical_reference.md`](technical_reference.md) for complete column definitions and formulas.
 
@@ -87,25 +87,25 @@ UPI transaction volumes have grown from 1.08 Bn (2018) to 99.30 Bn (2024).
 Bronze (Raw)  -->  Silver (Cleaned)  -->  Gold (Analytics-Ready)  -->  Dashboard
 ```
 
-| Phase | What Happens |
-|-------|-------------|
-| **Bronze** | Raw data ingested from 3 sources. PhonePe Pulse: 9,026 JSON files parsed from GitHub. NPCI: curated from official statistics. RBI: curated from DBIE. All stored as Parquet with source metadata. |
-| **Silver** | Standardized column names, type casting, null handling, duplicate removal. State/district name cleaning. Derived fields: fiscal year, YoY growth, avg transaction value. Validated: no nulls in key columns, positive values, no duplicates. |
-| **Gold** | Star schema in DuckDB. 4 dimension tables (date, geography, app, category) + 4 fact tables + 2 analytical views. Exported to Parquet for dashboard consumption. |
-| **Analytics** | 4 independent modules: Market concentration (HHI), Forecasting (Prophet + ARIMA), Geographic analysis (Gini + K-Means), Cash displacement (ratio analysis). Each produces Parquet outputs. |
+| Phase         | What Happens                                                                                                                                                                                                                                 |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Bronze**    | Raw data ingested from 3 sources. PhonePe Pulse: 9,026 JSON files parsed from GitHub. NPCI: curated from official statistics. RBI: curated from DBIE. All stored as Parquet with source metadata.                                            |
+| **Silver**    | Standardized column names, type casting, null handling, duplicate removal. State/district name cleaning. Derived fields: fiscal year, YoY growth, avg transaction value. Validated: no nulls in key columns, positive values, no duplicates. |
+| **Gold**      | Star schema in DuckDB. 4 dimension tables (date, geography, app, category) + 4 fact tables + 2 analytical views. Exported to Parquet for dashboard consumption.                                                                              |
+| **Analytics** | 4 independent modules: Market concentration (HHI), Forecasting (Prophet + ARIMA), Geographic analysis (Gini + K-Means), Cash displacement (ratio analysis). Each produces Parquet outputs.                                                   |
 
 ---
 
 ## Analytical Methods
 
-| Method | Formula | What It Measures | Why This Method |
-|--------|---------|-----------------|-----------------|
-| **HHI** | `sum(market_share^2)` | Market concentration (0 = competitive, 1 = monopoly) | Global standard used by DOJ and EU for antitrust evaluation |
-| **Gini Coefficient** | `(2 * sum(i * sorted_val)) / (n * sum(vals)) - (n+1)/n` | Inequality of UPI adoption across districts within a state | Scale-independent; used by World Bank for income inequality |
-| **K-Means Clustering** | 4 clusters on log-scaled features (volume, value, avg size) | District adoption tiers: Very Low, Low, Medium, High | Finds natural groupings; log-scaling prevents metro districts from dominating |
-| **ARIMA(1,1,1)** | AR(1) + differencing(1) + MA(1) | 12-month transaction volume forecast | Classical statistical approach; parsimonious for 42 data points |
-| **Prophet** | Trend + seasonality + holidays | 12-month forecast with confidence intervals | Handles Indian holidays (Diwali, Holi); robust to missing data |
-| **Digital-to-Cash Ratio** | `UPI_value / Currency_in_Circulation` | Digital payment penetration relative to physical cash | Direct scale comparison; growth rates alone can be misleading |
+| Method                    | Formula                                                     | What It Measures                                           | Why This Method                                                               |
+| ------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **HHI**                   | `sum(market_share^2)`                                       | Market concentration (0 = competitive, 1 = monopoly)       | Global standard used by DOJ and EU for antitrust evaluation                   |
+| **Gini Coefficient**      | `(2 * sum(i * sorted_val)) / (n * sum(vals)) - (n+1)/n`     | Inequality of UPI adoption across districts within a state | Scale-independent; used by World Bank for income inequality                   |
+| **K-Means Clustering**    | 4 clusters on log-scaled features (volume, value, avg size) | District adoption tiers: Very Low, Low, Medium, High       | Finds natural groupings; log-scaling prevents metro districts from dominating |
+| **ARIMA(1,1,1)**          | AR(1) + differencing(1) + MA(1)                             | 12-month transaction volume forecast                       | Classical statistical approach; parsimonious for 42 data points               |
+| **Prophet**               | Trend + seasonality + holidays                              | 12-month forecast with confidence intervals                | Handles Indian holidays (Diwali, Holi); robust to missing data                |
+| **Digital-to-Cash Ratio** | `UPI_value / Currency_in_Circulation`                       | Digital payment penetration relative to physical cash      | Direct scale comparison; growth rates alone can be misleading                 |
 
 See [`technical_reference.md`](technical_reference.md) for detailed formula explanations, worked examples, and rationale for choosing each method over alternatives.
 
@@ -125,14 +125,14 @@ UPI is not just a payment system. It is the financial infrastructure of a countr
 
 ## Tech Stack
 
-| Layer | Tools |
-|-------|-------|
-| Ingestion | Python, GitPython (PhonePe Pulse repo clone + JSON parsing) |
-| Processing | pandas, NumPy, DuckDB (columnar analytical database) |
-| Modeling | Star schema (4 dimension + 4 fact tables), Parquet exports |
-| Analytics | Prophet, statsmodels (ARIMA), scikit-learn (K-Means), SciPy (Gini) |
-| Visualization | Streamlit (11-tab dashboard), Plotly (60+ interactive charts) |
-| CI/CD | GitHub Actions (monthly data refresh cron) |
+| Layer         | Tools                                                              |
+| ------------- | ------------------------------------------------------------------ |
+| Ingestion     | Python, GitPython (PhonePe Pulse repo clone + JSON parsing)        |
+| Processing    | pandas, NumPy, DuckDB (columnar analytical database)               |
+| Modeling      | Star schema (4 dimension + 4 fact tables), Parquet exports         |
+| Analytics     | Prophet, statsmodels (ARIMA), scikit-learn (K-Means), SciPy (Gini) |
+| Visualization | Streamlit (11-tab dashboard), Plotly (60+ interactive charts)      |
+| CI/CD         | GitHub Actions (monthly data refresh cron)                         |
 
 ---
 
@@ -173,9 +173,3 @@ make app
 ```
 
 The dashboard runs at `http://localhost:8501`.
-
----
-
-## License
-
-This project uses publicly available data from PhonePe Pulse (CC BY 4.0), NPCI, and RBI DBIE.
