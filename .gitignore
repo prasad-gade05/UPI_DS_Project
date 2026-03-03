@@ -68,5 +68,8 @@ Desktop.ini
 *.log
 /logs/
 
+# ── Docs (internal planning/build logs) ──────────
+docs/
+
 # ── Streamlit ─────────────────────────────────────
 .streamlit/secrets.toml
