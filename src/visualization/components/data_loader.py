@@ -31,6 +31,8 @@ def load_all_data() -> dict[str, pd.DataFrame]:
         "npci_monthly_volumes": "transactions/npci_monthly_volumes.parquet",
         "rbi_currency_circulation": "transactions/rbi_currency_circulation.parquet",
         "phonepe_top_transactions": "transactions/phonepe_top_transactions.parquet",
+        "district_transactions": "geographic/district_transactions.parquet",
+        "state_transactions": "geographic/state_transactions.parquet",
     }
 
     for key, rel_path in silver_files.items():

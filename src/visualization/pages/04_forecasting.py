@@ -113,9 +113,14 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     # Forecast start separator
     if not actual.empty:
-        fig.add_vline(
-            x=actual["date"].max(), line_dash="dot", line_color="gray",
-            annotation_text="Forecast Start",
+        last_date = actual["date"].max()
+        fig.add_shape(
+            type="line", x0=last_date, x1=last_date, y0=0, y1=1,
+            yref="paper", line=dict(color="gray", width=1, dash="dot"),
+        )
+        fig.add_annotation(
+            x=last_date, y=1, yref="paper", text="Forecast Start",
+            showarrow=False, font=dict(size=10, color="gray"),
         )
 
     fig.update_layout(
