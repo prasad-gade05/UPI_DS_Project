@@ -194,7 +194,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         values="total_txn",
         title="District Transactions by Adoption Tier & State",
         color="total_txn",
+        height=600,
     )
+    fig_treemap.update_layout(margin=dict(l=10, r=10, t=50, b=10))
     st.plotly_chart(fig_treemap, use_container_width=True, config=PLOTLY_CONFIG)
 
     render_divider()
