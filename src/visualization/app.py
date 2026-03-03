@@ -120,3 +120,11 @@ for tab, page in zip(tabs, TAB_PAGES):
             st.error(f"Error rendering this section: {e}")
             import traceback
             st.code(traceback.format_exc(), language="text")
+        render_divider()
+        st.markdown(
+            '<p style="text-align:center; color:#888; font-size:0.9rem;">'
+            'Made by <a href="https://prasadgade.dev" target="_blank">Prasad Gade</a>'
+            ' · <a href="https://github.com/prasad-gade05/UPI_DS_Project" target="_blank">GitHub Repository</a>'
+            '</p>',
+            unsafe_allow_html=True,
+        )

@@ -265,3 +265,5 @@ def _render_key_insights(data: dict[str, pd.DataFrame], year_range: tuple) -> No
                 render_insight(text, variant="default")
     else:
         st.info("Run the data pipeline to generate insights.")
+
+
