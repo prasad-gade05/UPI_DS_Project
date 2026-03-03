@@ -163,11 +163,11 @@ UPI_DS_Project/
 
 ### Prerequisites
 
-| Requirement | Why | Install |
-|-------------|-----|---------|
-| **Python 3.10+** | Required by pandas 2.0, Prophet, DuckDB | [python.org](https://www.python.org/downloads/) |
-| **Git** | PhonePe Pulse ingester clones a public GitHub repo | [git-scm.com](https://git-scm.com/downloads) |
-| **pip** | Package installer | Ships with Python |
+| Requirement      | Why                                                | Install                                         |
+| ---------------- | -------------------------------------------------- | ----------------------------------------------- |
+| **Python 3.10+** | Required by pandas 2.0, Prophet, DuckDB            | [python.org](https://www.python.org/downloads/) |
+| **Git**          | PhonePe Pulse ingester clones a public GitHub repo | [git-scm.com](https://git-scm.com/downloads)    |
+| **pip**          | Package installer                                  | Ships with Python                               |
 
 No API keys, credentials, or environment variables are needed. All three data sources are public.
 
@@ -195,12 +195,12 @@ make all
 
 This runs four stages in sequence:
 
-| Stage | Command | What It Does | Time |
-|-------|---------|-------------|------|
-| **Ingest** | `make ingest` | Downloads raw data from 3 sources into `data/bronze/`. PhonePe Pulse: clones their [public GitHub repo](https://github.com/PhonePe/pulse) and parses 9,026 JSON files. NPCI: scrapes official statistics (falls back to curated data if site is JS-rendered). RBI: loads curated currency and ATM data. | ~5-10 min (first run, due to git clone) |
-| **Transform** | `make transform` | Cleans and validates all datasets. Standardizes column names, handles nulls, removes duplicates, derives fiscal year/quarter fields, computes YoY growth rates. Output in `data/silver/`. | ~1-2 min |
-| **Model** | `make model` | Builds a star schema in DuckDB (4 dimension tables + 4 fact tables + 2 views). Exports all tables to Parquet in `data/gold/exports/`. | ~2-3 min |
-| **Analyze** | `make analyze` | Runs 4 analytical modules: HHI market concentration, Prophet + ARIMA forecasting, Gini + K-Means geographic analysis, cash displacement ratio analysis. Results saved as Parquet. | ~3-5 min |
+| Stage         | Command          | What It Does                                                                                                                                                                                                                                                                                            | Time                                    |
+| ------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| **Ingest**    | `make ingest`    | Downloads raw data from 3 sources into `data/bronze/`. PhonePe Pulse: clones their [public GitHub repo](https://github.com/PhonePe/pulse) and parses 9,026 JSON files. NPCI: scrapes official statistics (falls back to curated data if site is JS-rendered). RBI: loads curated currency and ATM data. | ~5-10 min (first run, due to git clone) |
+| **Transform** | `make transform` | Cleans and validates all datasets. Standardizes column names, handles nulls, removes duplicates, derives fiscal year/quarter fields, computes YoY growth rates. Output in `data/silver/`.                                                                                                               | ~1-2 min                                |
+| **Model**     | `make model`     | Builds a star schema in DuckDB (4 dimension tables + 4 fact tables + 2 views). Exports all tables to Parquet in `data/gold/exports/`.                                                                                                                                                                   | ~2-3 min                                |
+| **Analyze**   | `make analyze`   | Runs 4 analytical modules: HHI market concentration, Prophet + ARIMA forecasting, Gini + K-Means geographic analysis, cash displacement ratio analysis. Results saved as Parquet.                                                                                                                       | ~3-5 min                                |
 
 Total first-run time: ~15-20 minutes. Subsequent runs are faster because the PhonePe repo is already cloned (git pull instead of clone).
 
@@ -265,14 +265,3 @@ make test       # Run test suite
 make clean      # Delete all generated data and logs
 make lint       # Run ruff linter and formatter
 ```
-
-### Troubleshooting
-
-| Problem | Cause | Fix |
-|---------|-------|-----|
-| `FileNotFoundError: git` | Git not installed on your system | Install git: [git-scm.com](https://git-scm.com/downloads) |
-| Ingestion hangs on first run | PhonePe Pulse repo clone is ~200MB | Wait 5-10 minutes. Uses `--depth 1` (shallow clone) to minimize download. |
-| NPCI scrape fails with warnings | NPCI website is JS-rendered | Harmless. The ingester falls back to curated data automatically. |
-| `ModuleNotFoundError: No module named 'src'` | Running from wrong directory | Run all commands from the project root (`UPI_DS_Project/`) |
-| Prophet installation fails | Missing C++ build tools | On Windows: install [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/). On Linux: `apt-get install build-essential`. |
-| Dashboard shows "No data found" | Pipeline has not been run | Run `make all` first, then `make app` |
