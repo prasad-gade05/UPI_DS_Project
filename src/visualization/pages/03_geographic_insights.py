@@ -171,20 +171,22 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             )
             st.plotly_chart(fig_region, use_container_width=True, config=PLOTLY_CONFIG)
 
-        # Adoption tier treemap
-        if "district_clusters" in data and not data["district_clusters"].empty:
-            dc = data["district_clusters"].copy()
-            tier_state = (
-                dc.groupby(["adoption_tier", "state_clean"], as_index=False)["total_txn"].sum()
-                .sort_values("total_txn", ascending=False)
-            )
-            fig_tree = create_treemap(
-                tier_state, path=["adoption_tier", "state_clean"],
-                values="total_txn",
-                title="Adoption Tier × State Treemap",
-                color="total_txn",
-            )
-            st.plotly_chart(fig_tree, use_container_width=True, config=PLOTLY_CONFIG)
+    # Adoption tier treemap — full width below the columns
+    if "district_clusters" in data and not data["district_clusters"].empty:
+        dc = data["district_clusters"].copy()
+        tier_state = (
+            dc.groupby(["adoption_tier", "state_clean"], as_index=False)["total_txn"].sum()
+            .sort_values("total_txn", ascending=False)
+        )
+        fig_tree = create_treemap(
+            tier_state, path=["adoption_tier", "state_clean"],
+            values="total_txn",
+            title="Adoption Tier x State Treemap",
+            color="total_txn",
+            height=600,
+        )
+        fig_tree.update_layout(margin=dict(l=10, r=10, t=50, b=10))
+        st.plotly_chart(fig_tree, use_container_width=True, config=PLOTLY_CONFIG)
 
     #  District Drill-Down 
     render_divider()
