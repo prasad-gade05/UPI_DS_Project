@@ -18,11 +18,11 @@ from src.visualization.components.styles import render_insight, render_divider, 
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Cash Displacement tab."""
-    render_section_header("💰 Cash vs Digital — Is India Going Cashless?")
+    render_section_header("Cash vs Digital — Is India Going Cashless?")
 
     if "fact_cash_displacement" not in data or data["fact_cash_displacement"].empty:
         st.warning(
-            "⚠️ Cash displacement data not available. "
+            "Cash displacement data not available. "
             "Run `make all` to build the data pipeline first."
         )
         return
@@ -39,7 +39,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     df = df.sort_values(["year", "month"])
     df["period"] = df["year"].astype(str) + "-" + df["month"].astype(str).str.zfill(2)
 
-    # ── KPI Cards ────────────────────────────────────────────────
+    #  KPI Cards 
     latest = df.iloc[-1]
     ratio = latest.get("digital_to_cash_ratio", 0)
 
@@ -61,29 +61,29 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
          "delta": "Year-over-Year", "delta_color": "off"},
         {"label": "Cash (CIC) Growth", "value": format_percentage(cic_growth),
          "delta": "Year-over-Year", "delta_color": "off"},
-        {"label": "Verdict", "value": "⚠️ Less Cash-Dependent",
+        {"label": "Verdict", "value": "Less Cash-Dependent",
          "delta": "NOT Cashless", "delta_color": "off"},
     ])
 
     st.markdown("---")
 
-    # ── Dual-Axis Chart: UPI vs Cash ─────────────────────────────
+    #  Dual-Axis Chart: UPI vs Cash 
     fig_dual = create_dual_axis_chart(
         df, x="period", y1="upi_value_lakh_cr", y2="cic_lakh_cr",
-        title="📊 UPI Transaction Value vs Currency in Circulation",
+        title="UPI Transaction Value vs Currency in Circulation",
         y1_name="UPI Value (₹ Lakh Cr)", y2_name="Currency in Circulation (₹ Lakh Cr)",
         y1_color="#1A73E8", y2_color="#00C853",
     )
     st.plotly_chart(fig_dual, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── Ratio Trend + Growth Comparison (side by side) ───────────
+    #  Ratio Trend + Growth Comparison (side by side) 
     render_divider()
     col1, col2 = st.columns(2)
 
     with col1:
         fig_ratio = create_line_chart(
             df, x="period", y="digital_to_cash_ratio",
-            title="📈 Digital-to-Cash Ratio Trend",
+            title="Digital-to-Cash Ratio Trend",
             area_fill=True,
         )
         st.plotly_chart(fig_ratio, use_container_width=True, config=PLOTLY_CONFIG)
@@ -108,13 +108,13 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             })
             fig_growth = create_bar_chart(
                 growth_melted, x="year", y="growth_pct",
-                title="📊 Annual Growth Rate Comparison (%)",
+                title="Annual Growth Rate Comparison (%)",
                 color="metric",
                 color_discrete_map={"UPI Growth": "#1A73E8", "Cash Growth": "#00C853"},
             )
             st.plotly_chart(fig_growth, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── Velocity Analysis (if cash_displacement_analysis available) ─
+    #  Velocity Analysis (if cash_displacement_analysis available) 
     if "cash_displacement_analysis" in data and not data["cash_displacement_analysis"].empty:
         cda = data["cash_displacement_analysis"].copy()
         cda["date"] = pd.to_datetime(cda["date"])
@@ -127,7 +127,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 if not vel_df.empty:
                     fig_vel = create_line_chart(
                         vel_df, x="date", y="displacement_velocity",
-                        title="⚡ Displacement Velocity",
+                        title="Displacement Velocity",
                         markers=True,
                     )
                     st.plotly_chart(fig_vel, use_container_width=True, config=PLOTLY_CONFIG)
@@ -138,32 +138,32 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 trend_counts.columns = ["trend", "count"]
                 fig_trend = create_bar_chart(
                     trend_counts, x="trend", y="count",
-                    title="📊 Trend Classification Distribution",
+                    title="Trend Classification Distribution",
                 )
                 st.plotly_chart(fig_trend, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── ATM Transaction Comparison ───────────────────────────────
+    #  ATM Transaction Comparison 
     if "rbi_atm_transactions" in data and not data["rbi_atm_transactions"].empty:
         render_divider()
-        st.markdown("##### 🏧 ATM Transaction Trends")
+        st.markdown("##### ATM Transaction Trends")
         atm = data["rbi_atm_transactions"].copy()
         atm["quarter_start_date"] = pd.to_datetime(atm["quarter_start_date"])
         atm = atm.sort_values("quarter_start_date")
 
         fig_atm = create_line_chart(
             atm, x="quarter_start_date", y="atm_transactions_millions",
-            title="🏧 Quarterly ATM Transactions (Millions)",
+            title="Quarterly ATM Transactions (Millions)",
             markers=True,
         )
         st.plotly_chart(fig_atm, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── Insight Box ──────────────────────────────────────────────
+    #  Insight Box 
     render_insight(
-        "<b>💡 Key Insight: India Is NOT Going Cashless</b> — Despite UPI's explosive growth, "
+        "<b>Key Insight: India Is NOT Going Cashless</b> -- Despite UPI's rapid growth, "
         "currency in circulation continues to rise year-over-year. UPI is capturing "
-        "<b>new transactions</b> (informal economy digitization — chai shops, auto-rickshaws, "
-        "street vendors) rather than replacing existing cash usage. India is becoming "
-        "<b>less cash-dependent</b>, not cashless. This is a critical distinction for "
+        "<b>new transactions</b> (informal economy digitization -- street vendors, auto-rickshaws, "
+        "small shops) rather than replacing existing cash usage. India is becoming "
+        "<b>less cash-dependent</b>, not cashless. This distinction matters for "
         "policymakers and researchers studying digital payment adoption in emerging economies.",
         variant="warning",
     )

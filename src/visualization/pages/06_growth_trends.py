@@ -26,18 +26,18 @@ from src.visualization.components.styles import (
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Growth & Trends tab."""
-    st.header("📈 Growth & Trends")
+    st.header("Growth & Trends")
 
     required = ["npci_monthly_volumes"]
     missing = [r for r in required if r not in data or data[r].empty]
     if missing:
         st.warning(
-            f"⚠️ Missing data: {', '.join(missing)}. "
+            f"Missing data: {', '.join(missing)}. "
             "Run `make all` to build the data pipeline first."
         )
         return
 
-    # ── Prepare NPCI monthly data ────────────────────────────────
+    #  Prepare NPCI monthly data 
     npci = data["npci_monthly_volumes"].copy()
     npci["date"] = pd.to_datetime(npci["date"])
     npci = npci[(npci["year"] >= year_range[0]) & (npci["year"] <= year_range[1])]
@@ -47,7 +47,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         st.info("No data available for the selected year range.")
         return
 
-    # ── KPI Cards ────────────────────────────────────────────────
+    #  KPI Cards 
     latest_vol = npci["transaction_volume_billions"].iloc[-1]
     peak_vol = npci["transaction_volume_billions"].max()
     total_cumulative = npci["transaction_volume_billions"].sum()
@@ -76,7 +76,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 1. Monthly Volume Trend (Area) ───────────────────────────
+    #  1. Monthly Volume Trend (Area) 
     render_section_header("Monthly Transaction Volume Trend")
     fig_volume = create_line_chart(
         npci, x="date", y="transaction_volume_billions",
@@ -85,7 +85,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     )
     st.plotly_chart(fig_volume, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── 2. YoY Growth Rate + 3. Heatmap (side by side) ───────────
+    #  2. YoY Growth Rate + 3. Heatmap (side by side) 
     col1, col2 = st.columns(2)
 
     with col1:
@@ -126,7 +126,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 4. Quarterly Growth Bars ─────────────────────────────────
+    #  4. Quarterly Growth Bars 
     render_section_header("Quarterly Volume Breakdown")
     quarterly = (
         npci.groupby(["year", "fiscal_quarter"], as_index=False)
@@ -144,7 +144,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     )
     st.plotly_chart(fig_qtr, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── 5. Average Transaction Value Trend ───────────────────────
+    #  5. Average Transaction Value Trend 
     render_section_header("Average Transaction Value Trend")
     avg_txn = npci[npci["avg_transaction_value_inr"].notna()].copy()
     if not avg_txn.empty:
@@ -160,7 +160,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 6. Festival Impact Analysis ──────────────────────────────
+    #  6. Festival Impact Analysis 
     render_section_header("Festival Impact Analysis")
     if "v_monthly_summary" in data and not data["v_monthly_summary"].empty:
         monthly = data["v_monthly_summary"].copy()
@@ -228,13 +228,13 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 7. Growth Narrative Insight ──────────────────────────────
+    #  7. Growth Narrative Insight 
     latest_date = npci["date"].iloc[-1].strftime("%B %Y")
     latest_yoy = npci["yoy_volume_growth"].dropna()
     latest_yoy_val = latest_yoy.iloc[-1] if not latest_yoy.empty else 0
 
     narrative = (
-        f"📊 <b>Growth Narrative:</b> UPI transaction volumes have grown at a "
+        f"<b>Growth Summary:</b> UPI transaction volumes have grown at a "
         f"<b>CAGR of {cagr:.1%}</b> over the selected period. "
         f"The latest monthly volume ({latest_date}) stands at <b>{latest_vol:.1f} Bn</b> "
         f"transactions, with a YoY growth rate of <b>{latest_yoy_val:.1%}</b>. "

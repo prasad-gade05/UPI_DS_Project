@@ -21,19 +21,19 @@ from src.visualization.components.styles import (
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the App Dynamics tab."""
-    st.header("📱 App Dynamics")
+    st.header("App Dynamics")
 
-    # ── Validate data ────────────────────────────────────────────
+    #  Validate data 
     if "app_market_share" not in data or data["app_market_share"].empty:
         st.warning(
-            "⚠️ App market share data not available. "
+            "App market share data not available. "
             "Run `make all` to build the data pipeline first."
         )
         return
 
     df = data["app_market_share"].copy()
 
-    # ── Filter by year_range ─────────────────────────────────────
+    #  Filter by year_range 
     if "year" in df.columns:
         df = df[(df["year"] >= year_range[0]) & (df["year"] <= year_range[1])]
 
@@ -47,7 +47,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     app_col = "app_name_clean" if "app_name_clean" in df.columns else "app_name"
     share_col = "market_share_pct" if "market_share_pct" in df.columns else "market_share"
 
-    # ── Latest snapshot ──────────────────────────────────────────
+    #  Latest snapshot 
     max_year = df["year"].max()
     latest_month_df = df[df["year"] == max_year]
     max_month = latest_month_df["month"].max()
@@ -62,7 +62,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     top2_val = phonepe_val + gpay_val
     num_active = latest[app_col].nunique()
 
-    # ── 1. KPI Cards ─────────────────────────────────────────────
+    #  1. KPI Cards 
     render_kpi_row([
         {"label": "PhonePe (Leader)", "value": f"{phonepe_val:.1f}%", "delta_color": "off"},
         {"label": "Google Pay (#2)", "value": f"{gpay_val:.1f}%", "delta_color": "off"},
@@ -72,7 +72,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 2. Individual App Trajectory Lines ───────────────────────
+    #  2. Individual App Trajectory Lines 
     render_section_header("Individual App Trajectories")
     fig_lines = create_line_chart(
         df, x="period", y=share_col,
@@ -81,7 +81,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     )
     st.plotly_chart(fig_lines, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── 3 & 4: Horizontal Bar + Stacked Area side-by-side ────────
+    #  3 & 4: Horizontal Bar + Stacked Area side-by-side 
     col1, col2 = st.columns(2)
 
     with col1:
@@ -109,7 +109,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 5. Paytm Collapse Analysis ───────────────────────────────
+    #  5. Paytm Collapse Analysis 
     paytm_df = df[df[app_col] == "Paytm"].sort_values("period")
     if not paytm_df.empty and len(paytm_df) >= 2:
         paytm_peak = paytm_df[share_col].max()
@@ -144,7 +144,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             st.plotly_chart(fig_paytm, use_container_width=True, config=PLOTLY_CONFIG)
             render_divider()
 
-    # ── 6. App Comparison Table ──────────────────────────────────
+    #  6. App Comparison Table 
     render_section_header("App Comparison Table")
     table_df = latest[[app_col, share_col]].rename(
         columns={app_col: "App", share_col: "Market Share (%)"}
@@ -161,7 +161,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 7. Duopoly Trend ─────────────────────────────────────────
+    #  7. Duopoly Trend 
     if "fact_market_concentration" in data and not data["fact_market_concentration"].empty:
         render_section_header("Duopoly Trend — Top 2 Combined Share")
         conc = data["fact_market_concentration"].copy()
@@ -185,9 +185,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 8. Insight Box ───────────────────────────────────────────
+    #  8. Insight Box 
     render_insight(
-        "💡 <b>Market Dynamics:</b> India's UPI ecosystem is dominated by a PhonePe–Google Pay "
+        "<b>Market Dynamics:</b> India's UPI ecosystem is dominated by a PhonePe-Google Pay "
         f"duopoly controlling <b>~{top2_val:.0f}%</b> of all transactions. "
         "Despite NPCI's proposed 30% volume cap, enforcement remains deferred. "
         "Paytm's sharp decline following RBI's action on Paytm Payments Bank has further "

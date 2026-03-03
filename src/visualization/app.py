@@ -30,22 +30,22 @@ from src.visualization.pages import (
     methodology,
 )
 
-# ── Page Configuration ───────────────────────────────────────────────
+#  Page Configuration 
 st.set_page_config(
     page_title="UPI Analytics Platform",
-    page_icon="🇮🇳",
+    page_icon="bar_chart",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 inject_custom_css()
 
-# ── Data Loading ─────────────────────────────────────────────────────
+#  Data Loading 
 data = load_all_data()
 
 if not data:
     st.error(
-        "🚫 **No data found.** The Gold layer exports are not available.\n\n"
+        "**No data found.** The Gold layer exports are not available.\n\n"
         "Run the data pipeline first:\n"
         "```bash\n"
         "make all   # or: python -m src.pipeline.run_pipeline --stage all\n"
@@ -53,12 +53,12 @@ if not data:
     )
     st.stop()
 
-# ── Header Bar ───────────────────────────────────────────────────────
+#  Header Bar 
 col_title, col_filter = st.columns([3, 1])
 
 with col_title:
     st.markdown(
-        '<h1 class="hero-title">🇮🇳 UPI Analytics Platform</h1>',
+        '<h1 class="hero-title">UPI Analytics Platform</h1>',
         unsafe_allow_html=True,
     )
     st.markdown(
@@ -72,7 +72,7 @@ with col_title:
 with col_filter:
     years = get_available_years(data)
     year_range = st.slider(
-        "📅 Year Range",
+        "Year Range",
         min_value=min(years),
         max_value=max(years),
         value=(min(years), max(years)),
@@ -81,19 +81,19 @@ with col_filter:
 
 render_divider()
 
-# ── Tab Navigation ───────────────────────────────────────────────────
+#  Tab Navigation 
 TAB_LABELS = [
-    "🇮🇳 Overview",
-    "📊 Executive Summary",
-    "📈 Growth & Trends",
-    "🏢 Market Concentration",
-    "📱 App Dynamics",
-    "🗺️ Geographic Analysis",
-    "📍 District Deep Dive",
-    "💰 Cash vs Digital",
-    "🔮 Forecasting",
-    "👥 Users & Devices",
-    "📋 Methodology",
+    "Overview",
+    "Executive Summary",
+    "Growth & Trends",
+    "Market Concentration",
+    "App Dynamics",
+    "Geographic Analysis",
+    "District Deep Dive",
+    "Cash vs Digital",
+    "Forecasting",
+    "Users & Devices",
+    "Methodology",
 ]
 
 TAB_PAGES = [
@@ -117,6 +117,6 @@ for tab, page in zip(tabs, TAB_PAGES):
         try:
             page.render(data, year_range)
         except Exception as e:
-            st.error(f"⚠️ Error rendering this section: {e}")
+            st.error(f"Error rendering this section: {e}")
             import traceback
             st.code(traceback.format_exc(), language="text")

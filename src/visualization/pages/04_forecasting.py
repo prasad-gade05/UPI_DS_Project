@@ -14,12 +14,12 @@ from src.visualization.components.styles import render_insight, render_divider, 
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Forecasting tab."""
-    render_section_header("🔮 UPI Growth Forecasting — ML-Powered Projections")
+    render_section_header("UPI Growth Forecasting — ML-Powered Projections")
 
-    # ── Check for forecast data ──────────────────────────────────
+    #  Check for forecast data 
     if "forecast_combined" not in data or data["forecast_combined"].empty:
         st.warning(
-            "⚠️ Forecast data not available. "
+            "Forecast data not available. "
             "Run the analytics engine (`make analyze`) to generate forecasts."
         )
         _show_placeholder()
@@ -36,7 +36,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     actual = forecast_df[~forecast_df["is_forecast"]]
     forecasted = forecast_df[forecast_df["is_forecast"]]
 
-    # ── KPI Cards ────────────────────────────────────────────────
+    #  KPI Cards 
     forecast_months = len(forecasted)
     latest_forecast = forecasted["volume_bn"].iloc[-1] if not forecasted.empty else 0
 
@@ -62,12 +62,12 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         {"label": "Latest Forecast",
          "value": f"{latest_forecast:.1f} Bn",
          "delta_color": "off"},
-        {"label": "Seasonal Peak", "value": f"📅 {peak_month}", "delta_color": "off"},
+        {"label": "Seasonal Peak", "value": f"{peak_month}", "delta_color": "off"},
     ])
 
     st.markdown("---")
 
-    # ── Actual + Forecast Chart ──────────────────────────────────
+    #  Actual + Forecast Chart 
     fig = go.Figure()
 
     # ARIMA confidence interval band
@@ -130,7 +130,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     )
     st.plotly_chart(apply_common_layout(fig), use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── Seasonal Factors + ARIMA Details (side by side) ──────────
+    #  Seasonal Factors + ARIMA Details (side by side) 
     render_divider()
     col1, col2 = st.columns(2)
 
@@ -145,7 +145,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
             fig_seasonal = create_seasonal_bar(
                 sf, x="month_name", y="seasonal_factor",
-                title="📅 Monthly Seasonal Factors",
+                title="Monthly Seasonal Factors",
             )
             st.plotly_chart(fig_seasonal, use_container_width=True, config=PLOTLY_CONFIG)
         else:
@@ -153,7 +153,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     with col2:
         if has_arima:
-            st.markdown("##### 📊 ARIMA Forecast Details")
+            st.markdown("##### ARIMA Forecast Details")
             arima_display = data["arima_forecast"].copy()
             arima_display["date"] = pd.to_datetime(arima_display["date"]).dt.strftime("%b %Y")
             arima_display.columns = ["Month", "Forecast (Bn)", "Lower CI", "Upper CI"]
@@ -162,7 +162,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             st.dataframe(arima_display, use_container_width=True, hide_index=True)
 
             # Model comparison
-            st.markdown("##### 🏆 Model Comparison")
+            st.markdown("##### Model Comparison")
             if not forecasted.empty and not arima_df.empty:
                 prophet_end = forecasted["volume_bn"].iloc[-1]
                 arima_end = arima_df["arima_forecast_bn"].iloc[-1]
@@ -175,10 +175,10 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         else:
             st.info("ARIMA forecast data not available.")
 
-    # ── Forecast Insight ─────────────────────────────────────────
+    #  Forecast Insight 
     milestone_text = f"projected to reach <b>25 Bn/month</b> by <b>{milestone_date.strftime('%B %Y')}</b>" if milestone_date else "on track for continued growth"
     render_insight(
-        f"<b>🔮 Forecast Insight:</b> Using Prophet (additive decomposition) and "
+        f"<b>Forecast Insight:</b> Using Prophet (additive decomposition) and "
         f"ARIMA (auto-regressive) models trained on {len(actual)} months of data, "
         f"UPI transaction volumes are {milestone_text}. "
         f"Seasonal analysis reveals <b>{peak_month}</b> as the peak month, "
@@ -190,7 +190,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 def _show_placeholder() -> None:
     """Show placeholder content when forecast data isn't ready."""
     st.info(
-        "📈 Once the analytics engine runs, this tab will display:\n"
+        "Once the analytics engine runs, this tab will display:\n"
         "- **Prophet forecast** with confidence intervals\n"
         "- **ARIMA comparison** forecast\n"
         "- **Seasonal factors** by month"

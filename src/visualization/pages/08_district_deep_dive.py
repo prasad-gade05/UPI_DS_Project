@@ -24,7 +24,7 @@ TIER_ORDER = ["Very Low Adoption", "Low Adoption", "Medium Adoption", "High Adop
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the District-Level Deep Dive tab."""
-    st.header("📍 District-Level Deep Dive")
+    st.header("District-Level Deep Dive")
 
     clusters = data.get("district_clusters", pd.DataFrame())
     underserved = data.get("underserved_districts", pd.DataFrame())
@@ -34,12 +34,12 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     if clusters.empty:
         st.warning(
-            "⚠️ District cluster data not available. "
+            "District cluster data not available. "
             "Run `make all` to build the data pipeline first."
         )
         return
 
-    # ── KPI Cards ────────────────────────────────────────────────
+    #  KPI Cards 
     total_districts = len(clusters)
     num_underserved = len(underserved) if not underserved.empty else 0
     avg_gini = (
@@ -64,8 +64,8 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 1. Cluster Distribution Bar ──────────────────────────────
-    render_section_header("📊 Cluster Distribution")
+    #  1. Cluster Distribution Bar 
+    render_section_header("Cluster Distribution")
 
     cluster_counts = (
         clusters.groupby("adoption_tier", as_index=False)
@@ -89,8 +89,8 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 2. District Scatter Plot ─────────────────────────────────
-    render_section_header("🔬 District Transaction Landscape")
+    #  2. District Scatter Plot 
+    render_section_header("District Transaction Landscape")
 
     fig_scatter = create_scatter(
         clusters,
@@ -107,8 +107,8 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 3. Top 10 vs Bottom 10 Districts ─────────────────────────
-    render_section_header("🏆 Top 10 vs Bottom 10 Districts")
+    #  3. Top 10 vs Bottom 10 Districts 
+    render_section_header("Top 10 vs Bottom 10 Districts")
 
     sorted_districts = clusters.sort_values("total_txn", ascending=False)
     top_10 = sorted_districts.head(10)[["district_clean", "state_clean", "total_txn"]].reset_index(drop=True)
@@ -117,7 +117,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     col_top, col_bottom = st.columns(2)
 
     with col_top:
-        st.subheader("🟢 Top 10 Districts")
+        st.subheader("Top 10 Districts")
         st.dataframe(
             top_10.rename(columns={
                 "district_clean": "District",
@@ -129,7 +129,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         )
 
     with col_bottom:
-        st.subheader("🔴 Bottom 10 Districts")
+        st.subheader("Bottom 10 Districts")
         st.dataframe(
             bottom_10.rename(columns={
                 "district_clean": "District",
@@ -142,9 +142,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 4. State-level Gini Inequality ───────────────────────────
+    #  4. State-level Gini Inequality 
     if not state_anal.empty and "intra_state_gini" in state_anal.columns:
-        render_section_header("📉 State-level Gini Inequality")
+        render_section_header("State-level Gini Inequality")
 
         gini_df = (
             state_anal[["state_clean", "intra_state_gini"]]
@@ -163,9 +163,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
         render_divider()
 
-    # ── 5. Underserved Districts Table ───────────────────────────
+    #  5. Underserved Districts Table 
     if not underserved.empty:
-        render_section_header("🚨 Underserved Districts")
+        render_section_header("Underserved Districts")
         st.caption("Bottom 50 districts by transaction count — potential targets for financial inclusion programs.")
 
         st.dataframe(
@@ -182,8 +182,8 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
         render_divider()
 
-    # ── 6. Adoption Tier Treemap ─────────────────────────────────
-    render_section_header("🗂️ Adoption Tier Treemap")
+    #  6. Adoption Tier Treemap 
+    render_section_header("Adoption Tier Treemap")
 
     treemap_df = clusters[["adoption_tier", "state_clean", "total_txn"]].copy()
     treemap_df = treemap_df.dropna(subset=["adoption_tier", "state_clean", "total_txn"])
@@ -199,8 +199,8 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── 7. District Distribution by State ────────────────────────
-    render_section_header("🏛️ District Distribution by State")
+    #  7. District Distribution by State 
+    render_section_header("District Distribution by State")
 
     states = sorted(clusters["state_clean"].dropna().unique())
     selected_state = st.selectbox("Select a State", states, key="district_deep_dive_state")
@@ -229,7 +229,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── Insight Box ──────────────────────────────────────────────
+    #  Insight Box 
     render_insight(
         "**Digital Divide Insight:** India's UPI adoption shows significant geographic "
         "disparity. A small number of urban districts dominate transaction volumes while "

@@ -1,4 +1,4 @@
-"""👥 Users & Devices — UPI user adoption, device brand analysis, and insurance trends."""
+""" Users & Devices — UPI user adoption, device brand analysis, and insurance trends."""
 
 import streamlit as st
 import pandas as pd
@@ -30,8 +30,8 @@ def _qoq_growth(series: pd.Series) -> pd.Series:
 # ---------------------------------------------------------------------------
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
-    st.header("👥 Users & Devices")
-    st.markdown("Deep-dive into PhonePe user adoption, device brand landscape, and insurance trends.")
+    st.header("Users & Devices")
+    st.markdown("User adoption trends, device brand distribution, and insurance data from PhonePe.")
 
     # --- Validate required data -------------------------------------------------
     users_df = data.get("phonepe_user_aggregates")
@@ -74,8 +74,8 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── Section 1: User Registration Growth ─────────────────────────────────────
-    render_section_header("📈 User Registration Growth")
+    #  Section 1: User Registration Growth 
+    render_section_header("User Registration Growth")
 
     fig_users = create_line_chart(
         users,
@@ -86,8 +86,8 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     )
     st.plotly_chart(fig_users, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── Section 2: App Opens Trend ──────────────────────────────────────────────
-    render_section_header("📱 App Opens Trend")
+    #  Section 2: App Opens Trend 
+    render_section_header("App Opens Trend")
 
     fig_opens = create_line_chart(
         users,
@@ -98,8 +98,8 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     )
     st.plotly_chart(fig_opens, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── Section 3: QoQ User Growth Rate ─────────────────────────────────────────
-    render_section_header("📊 Quarter-over-Quarter User Growth Rate")
+    #  Section 3: QoQ User Growth Rate 
+    render_section_header("Quarter-over-Quarter User Growth Rate")
 
     growth_df = users[["quarter_start_date", "registered_users"]].copy()
     growth_df["qoq_growth"] = _qoq_growth(growth_df["registered_users"])
@@ -116,9 +116,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── Section 4 & 5: Device Analysis (side-by-side) ───────────────────────────
+    #  Section 4 & 5: Device Analysis (side-by-side) 
     if not devices.empty:
-        render_section_header("📲 Device Brand Analysis")
+        render_section_header("Device Brand Analysis")
 
         col_donut, col_evolution = st.columns(2)
 
@@ -173,13 +173,13 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
         render_divider()
 
-    # ── Section 6 & 7: Insurance Adoption ───────────────────────────────────────
+    #  Section 6 & 7: Insurance Adoption 
     insurance_df = data.get("phonepe_insurance")
     if insurance_df is not None and not insurance_df.empty:
         ins = _filter_year(insurance_df, year_range).sort_values("quarter_start_date")
 
         if not ins.empty:
-            render_section_header("🛡️ Insurance Adoption")
+            render_section_header("Insurance Adoption")
 
             col_bar, col_area = st.columns(2)
 
@@ -209,11 +209,17 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
             render_divider()
 
-    # ── Insight ─────────────────────────────────────────────────────────────────
+    #  Insight
+    earliest = users.iloc[0]
+    latest_u = users.iloc[-1]
+    earliest_users_m = earliest["registered_users"] / 1e6
+    latest_users_m = latest_u["registered_users"] / 1e6
+
     render_insight(
-        "PhonePe's registered user base has scaled from ~47 million to over 600 million users, "
-        "reflecting India's rapid digital-payments adoption. Device diversity continues to widen, "
-        "with Xiaomi, Samsung, and Vivo leading the ecosystem — underscoring the importance of "
-        "optimising for affordable Android devices.",
+        f"PhonePe's registered user base grew from <b>{earliest_users_m:,.0f} million</b> "
+        f"to <b>{latest_users_m:,.0f} million</b> users over the selected period. "
+        "Device diversity continues to widen, "
+        "with Xiaomi, Samsung, and Vivo leading the ecosystem -- highlighting the role of "
+        "affordable Android devices in India's digital payments adoption.",
         variant="success",
     )

@@ -10,7 +10,7 @@ import streamlit as st
 
 from src.visualization.components.charts import apply_common_layout
 
-# ── State name normalization ────────────────────────────────────
+#  State name normalization 
 STATE_NAME_MAP = {
     "Andaman And Nicobar Islands": "Andaman & Nicobar Island",
     "Dadra And Nagar Haveli And Daman And Diu": "Dadra and Nagar Haveli and Daman and Diu",

@@ -22,12 +22,12 @@ from src.visualization.components.styles import render_insight, render_divider, 
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Executive Summary tab."""
-    render_section_header("📊 Executive Summary — CXO Dashboard")
+    render_section_header("Executive Summary — CXO Dashboard")
 
     required = ["fact_upi_transactions"]
     missing = [r for r in required if r not in data or data[r].empty]
     if missing:
-        st.warning(f"⚠️ Missing data: {', '.join(missing)}. Run `make all` first.")
+        st.warning(f"Missing data: {', '.join(missing)}. Run `make all` first.")
         return
 
     df = data["fact_upi_transactions"]
@@ -37,7 +37,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         st.info("No data available for the selected year range.")
         return
 
-    # ── KPI Cards (6 metrics) ────────────────────────────────────
+    #  KPI Cards (6 metrics) 
     total_txns = df["txn_count"].sum()
     total_value = df["txn_amount_inr"].sum()
     avg_txn = total_value / total_txns if total_txns > 0 else 0
@@ -85,7 +85,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── Yearly Volume + Value (side by side) ─────────────────────
+    #  Yearly Volume + Value (side by side) 
     yearly = (
         df.groupby("year", as_index=False)
         .agg(total_txns=("txn_count", "sum"), total_value=("txn_amount_inr", "sum"))
@@ -98,7 +98,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     with col1:
         fig_vol = create_bar_chart(
             yearly, x="year", y="txn_billions",
-            title="📊 Yearly Transaction Volume (Billions)",
+            title="Yearly Transaction Volume (Billions)",
             color_continuous_scale="Purples",
         )
         st.plotly_chart(fig_vol, use_container_width=True, config=PLOTLY_CONFIG)
@@ -106,12 +106,12 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     with col2:
         fig_val = create_bar_chart(
             yearly, x="year", y="value_lakh_cr",
-            title="💰 Yearly Transaction Value (₹ Lakh Crores)",
+            title="Yearly Transaction Value (₹ Lakh Crores)",
             color_continuous_scale="Blues",
         )
         st.plotly_chart(fig_val, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── Monthly Trend + Category Breakdown (side by side) ────────
+    #  Monthly Trend + Category Breakdown (side by side) 
     col1, col2 = st.columns([3, 2])
 
     with col1:
@@ -126,7 +126,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
             fig_monthly = create_line_chart(
                 monthly, x="period", y="txn_billions",
-                title="📈 Monthly Transaction Trend (Billions)",
+                title="Monthly Transaction Trend (Billions)",
                 area_fill=True, markers=True,
             )
             st.plotly_chart(fig_monthly, use_container_width=True, config=PLOTLY_CONFIG)
@@ -149,14 +149,14 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
             fig_cat = create_donut_chart(
                 cat_summary, values="txn_count", names="category_name",
-                title=f"🥧 Transaction Categories ({latest_year})",
+                title=f"Transaction Categories ({latest_year})",
                 color_discrete_map=CATEGORY_COLORS,
             )
             st.plotly_chart(fig_cat, use_container_width=True, config=PLOTLY_CONFIG)
         else:
             st.info("Category breakdown data not available.")
 
-    # ── Year-over-Year Growth Table ──────────────────────────────
+    #  Year-over-Year Growth Table 
     if len(yearly) > 1:
         yearly["yoy_vol_growth"] = yearly["total_txns"].pct_change() * 100
         yearly["yoy_val_growth"] = yearly["total_value"].pct_change() * 100
@@ -173,10 +173,10 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         )
 
     render_insight(
-        f"<b>📊 Key Takeaway:</b> India's UPI processed <b>{format_billions(total_txns)}</b> "
+        f"<b>Key Takeaway:</b> India's UPI processed <b>{format_billions(total_txns)}</b> "
         f"transactions worth <b>{format_lakh_crores(total_value)}</b> between "
         f"{df['year'].min()}–{df['year'].max()}. "
         f"Transaction volumes grew <b>{format_percentage(txn_growth)}</b> YoY in {latest_year}, "
         f"while average transaction value {'declined' if avg_growth < 0 else 'grew'} "
-        f"— signaling {'democratization of small-value digital payments' if avg_growth < 0 else 'increasing adoption for larger transactions'}."
+        f"-- indicating {'more small-value payments are being made digitally' if avg_growth < 0 else 'adoption is growing for larger transactions'}."
     )

@@ -24,9 +24,9 @@ from src.visualization.components.styles import render_insight, render_divider, 
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Geographic Insights tab."""
-    render_section_header("🗺️ Geographic Analysis — State & District Level Insights")
+    render_section_header("Geographic Analysis — State & District Level Insights")
 
-    # ── KPI Cards ────────────────────────────────────────────────
+    #  KPI Cards 
     num_states = 0
     num_districts = 0
     if "state_analysis" in data:
@@ -53,7 +53,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── Interactive India Maps (Choropleth + Bubble side by side) ─
+    #  Interactive India Maps (Choropleth + Bubble side by side) 
     if "state_analysis" in data and not data["state_analysis"].empty:
         sa = data["state_analysis"].copy()
         sa["txn_billions"] = sa["total_transactions"] / 1e9
@@ -78,7 +78,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         with col_map1:
             fig_choro = create_india_choropleth(
                 sa, locations_col="state_clean", color_col=color_col,
-                title=f"🗺️ {map_metric} by State",
+                title=f" {map_metric} by State",
                 color_scale=scale,
                 hover_data=["num_districts", "intra_state_gini", "rank"],
                 labels={
@@ -98,13 +98,13 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     title=f"Top 15 States — {map_metric}",
                 )
                 st.plotly_chart(fig_fb, use_container_width=True, config=PLOTLY_CONFIG)
-                st.caption("📌 Map will render when GeoJSON is available.")
+                st.caption("Map will render when GeoJSON is available.")
 
         with col_map2:
             fig_bubble = create_india_bubble_map(
                 sa, state_col="state_clean", size_col="txn_billions",
                 color_col="intra_state_gini",
-                title="🫧 Transaction Volume (size) × Gini (color)",
+                title="Transaction Volume (size) × Gini (color)",
                 hover_data=["num_districts", "rank"],
                 color_scale="RdYlGn_r",
             )
@@ -115,7 +115,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── State Rankings Table + Regional Breakdown ────────────────
+    #  State Rankings Table + Regional Breakdown 
     col1, col2 = st.columns([3, 2])
 
     with col1:
@@ -138,7 +138,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             state_agg["total_txns_bn"] = state_agg["total_txns"] / 1e9
             state_agg["pct_underserved"] = state_agg["pct_underserved"] * 100
 
-            st.markdown("##### 📋 State Rankings by UPI Adoption")
+            st.markdown("##### State Rankings by UPI Adoption")
             st.dataframe(
                 state_agg[["Rank", "state", "total_txns_bn", "num_districts", "pct_underserved"]]
                 .rename(columns={
@@ -166,7 +166,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
             fig_region = create_donut_chart(
                 regional, values="total_transactions", names="region",
-                title="🌍 Regional Distribution of UPI",
+                title="Regional Distribution of UPI",
                 color_discrete_map=REGION_COLORS,
             )
             st.plotly_chart(fig_region, use_container_width=True, config=PLOTLY_CONFIG)
@@ -181,14 +181,14 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             fig_tree = create_treemap(
                 tier_state, path=["adoption_tier", "state_clean"],
                 values="total_txn",
-                title="📊 Adoption Tier × State Treemap",
+                title="Adoption Tier × State Treemap",
                 color="total_txn",
             )
             st.plotly_chart(fig_tree, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── District Drill-Down ──────────────────────────────────────
+    #  District Drill-Down 
     render_divider()
-    render_section_header("📍 Interactive District Explorer")
+    render_section_header("Interactive District Explorer")
 
     if "district_clusters" in data and not data["district_clusters"].empty:
         dc = data["district_clusters"].copy()
@@ -226,7 +226,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     district_col="district_clean",
                     value_col="total_txn",
                     selected_state=selected_state,
-                    title=f"🏙️ Districts in {selected_state} — Transaction Volume",
+                    title=f"Districts in {selected_state} — Transaction Volume",
                     height=450,
                 )
                 st.plotly_chart(fig_district, use_container_width=True, config=PLOTLY_CONFIG)
@@ -246,14 +246,14 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
                 fig_tier = create_bar_chart(
                     tier_counts, x="adoption_tier", y="count",
-                    title=f"📊 Adoption Tiers in {selected_state}",
+                    title=f"Adoption Tiers in {selected_state}",
                     color="adoption_tier", color_discrete_map=CLUSTER_COLORS,
                     height=450,
                 )
                 st.plotly_chart(fig_tier, use_container_width=True, config=PLOTLY_CONFIG)
 
             # District detail table
-            with st.expander(f"📋 All {n_districts} Districts in {selected_state}", expanded=False):
+            with st.expander(f"All {n_districts} Districts in {selected_state}", expanded=False):
                 display_df = (
                     state_districts[["district_clean", "total_txn", "total_value",
                                      "avg_txn_value", "adoption_tier"]]
@@ -269,7 +269,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 st.dataframe(display_df, use_container_width=True, hide_index=True,
                              height=min(400, 35 * n_districts + 50))
 
-    # ── Cluster Distribution + Top/Bottom ────────────────────────
+    #  Cluster Distribution + Top/Bottom 
     render_divider()
     col1, col2 = st.columns(2)
 
@@ -286,7 +286,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
             fig_cluster = create_bar_chart(
                 cluster_counts, x="adoption_tier", y="count",
-                title="📊 All Districts by Adoption Tier",
+                title="All Districts by Adoption Tier",
                 color="adoption_tier", color_discrete_map=CLUSTER_COLORS,
             )
             st.plotly_chart(fig_cluster, use_container_width=True, config=PLOTLY_CONFIG)
@@ -303,7 +303,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 .sort_values("total_txns", ascending=False)
             )
 
-            top_tab, bottom_tab = st.tabs(["🟢 Top 10 Districts", "🔴 Bottom 10 Districts"])
+            top_tab, bottom_tab = st.tabs(["Top 10 Districts", "Bottom 10 Districts"])
             with top_tab:
                 top_10 = district_agg.head(10).reset_index(drop=True)
                 top_10.insert(0, "#", range(1, 11))
@@ -324,7 +324,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 )
 
     render_insight(
-        f"<b>🗺️ Geographic Divide:</b> India's UPI adoption shows significant geographic disparity. "
+        f"<b>Geographic Divide:</b> India's UPI adoption shows significant geographic disparity. "
         f"<b>{num_states}</b> states and <b>{num_districts}</b> districts analyzed reveal "
         f"<b>{underserved_count}</b> critically underserved districts. "
         f"The average intra-state Gini coefficient of <b>{avg_gini:.3f}</b> indicates substantial "

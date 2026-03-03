@@ -1,5 +1,5 @@
-"""Tab 10: Methodology & Data Quality — Project architecture, data sources,
-analytical models, technology stack, limitations, and glossary."""
+"""Tab 10: Methodology & Data Quality -- project pipeline, architecture,
+data sources, quality metrics, analytical models, tech stack, and glossary."""
 
 import streamlit as st
 import pandas as pd
@@ -11,7 +11,9 @@ from src.visualization.components.styles import (
 )
 
 
-# ── Helper ───────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper
+# ---------------------------------------------------------------------------
 
 def _null_pct(df: pd.DataFrame, columns: list[str]) -> dict[str, float]:
     """Return null percentage for each column present in *df*."""
@@ -22,42 +24,56 @@ def _null_pct(df: pd.DataFrame, columns: list[str]) -> dict[str, float]:
     return result
 
 
-# ── Main render ──────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Main render
+# ---------------------------------------------------------------------------
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Methodology & Data Quality page."""
 
     st.markdown(
-        '<div class="hero-title">📋 Methodology & Data Quality</div>',
+        '<div class="hero-title">Methodology & Data Quality</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
         '<div class="hero-subtitle">'
-        "Project architecture, analytical framework, data provenance, "
-        "and known limitations — everything needed to evaluate this work."
+        "Pipeline design, data sources, quality checks, models, and limitations."
         "</div>",
         unsafe_allow_html=True,
     )
 
     render_divider()
 
-    # ════════════════════════════════════════════════════════════════════
-    # 1. Data Pipeline Architecture
-    # ════════════════════════════════════════════════════════════════════
-    render_section_header("🏗️ Data Pipeline Architecture")
+    # ------------------------------------------------------------------
+    # 1. What Was Done
+    # ------------------------------------------------------------------
+    render_section_header("What Was Done")
 
     st.markdown(
         """
-This platform follows the **Medallion Architecture** — a proven pattern for
-progressive data refinement used in modern lakehouse systems.
+1. Collected UPI transaction data from three public sources (PhonePe Pulse, NPCI, RBI).
+2. Ingested raw files into a Bronze layer and stored them as Parquet.
+3. Cleaned, deduplicated, and standardized schemas in a Silver layer.
+4. Built analytical tables in a Gold layer: market concentration (HHI),
+   time-series forecasts (Prophet, ARIMA), and cash-displacement metrics.
+5. Loaded Gold-layer outputs into this Streamlit dashboard for interactive analysis.
 """
     )
 
+    render_divider()
+
+    # ------------------------------------------------------------------
+    # 2. Data Pipeline Architecture
+    # ------------------------------------------------------------------
+    render_section_header("Data Pipeline Architecture")
+
+    st.markdown(
+        "The pipeline uses the **Medallion Architecture** -- data moves through "
+        "four stages of progressive refinement."
+    )
+
     st.code(
-        "  ┌─────────────┐    ┌──────────────┐    ┌──────────────┐    ┌─────────────┐\n"
-        "  │  🥉 Bronze   │───▶│  🥈 Silver    │───▶│  🥇 Gold     │───▶│  📊 Dashboard│\n"
-        "  │  (Raw Data)  │    │  (Cleaned)    │    │  (Analytics) │    │  (Streamlit) │\n"
-        "  └─────────────┘    └──────────────┘    └──────────────┘    └─────────────┘",
+        "Bronze (Raw)  -->  Silver (Cleaned)  -->  Gold (Analytics)  -->  Dashboard (Streamlit)",
         language=None,
     )
 
@@ -65,69 +81,54 @@ progressive data refinement used in modern lakehouse systems.
 
     with layer1:
         st.markdown(
-            """
-<div class="about-card">
-<h4>🥉 Bronze Layer</h4>
-<p style="font-size:0.88rem; color:#555;">
-Raw ingestion from PhonePe Pulse GitHub API, NPCI web-scraped CSVs, and
-RBI DBIE exports. Data is stored as-is in Parquet format with full lineage
-metadata.
-</p>
-</div>
-""",
+            '<div class="about-card">'
+            "<h4>Bronze Layer</h4>"
+            '<p style="font-size:0.88rem; color:#555;">'
+            "Raw data from PhonePe Pulse GitHub API, NPCI CSVs, and "
+            "RBI DBIE exports. Stored as-is in Parquet with ingestion metadata."
+            "</p></div>",
             unsafe_allow_html=True,
         )
 
     with layer2:
         st.markdown(
-            """
-<div class="about-card">
-<h4>🥈 Silver Layer</h4>
-<p style="font-size:0.88rem; color:#555;">
-Schema normalization, deduplication, null handling, type casting, and
-date standardization. Dimensional modeling produces star-schema facts
-and dimensions.
-</p>
-</div>
-""",
+            '<div class="about-card">'
+            "<h4>Silver Layer</h4>"
+            '<p style="font-size:0.88rem; color:#555;">'
+            "Schema normalization, deduplication, null handling, type casting, "
+            "and date standardization. Produces star-schema fact and dimension tables."
+            "</p></div>",
             unsafe_allow_html=True,
         )
 
     with layer3:
         st.markdown(
-            """
-<div class="about-card">
-<h4>🥇 Gold Layer</h4>
-<p style="font-size:0.88rem; color:#555;">
-Analytical models, aggregations, forecasts (Prophet + ARIMA), clustering
-(K-Means), market concentration (HHI), and cash displacement analysis.
-</p>
-</div>
-""",
+            '<div class="about-card">'
+            "<h4>Gold Layer</h4>"
+            '<p style="font-size:0.88rem; color:#555;">'
+            "Aggregations, HHI market concentration, Prophet and ARIMA forecasts, "
+            "K-Means clustering, and cash-displacement analysis."
+            "</p></div>",
             unsafe_allow_html=True,
         )
 
     with layer4:
         st.markdown(
-            """
-<div class="about-card">
-<h4>📊 Dashboard</h4>
-<p style="font-size:0.88rem; color:#555;">
-Interactive Streamlit application with Plotly visualizations. Reads
-Gold-layer Parquet files and renders 10+ analytical views with
-real-time filtering.
-</p>
-</div>
-""",
+            '<div class="about-card">'
+            "<h4>Dashboard</h4>"
+            '<p style="font-size:0.88rem; color:#555;">'
+            "Streamlit app with Plotly charts. Reads Gold-layer Parquet files "
+            "and renders 10+ views with filtering."
+            "</p></div>",
             unsafe_allow_html=True,
         )
 
     render_divider()
 
-    # ════════════════════════════════════════════════════════════════════
-    # 2. Data Sources
-    # ════════════════════════════════════════════════════════════════════
-    render_section_header("📚 Data Sources")
+    # ------------------------------------------------------------------
+    # 3. Data Sources
+    # ------------------------------------------------------------------
+    render_section_header("Data Sources")
 
     pp_records = sum(
         len(data.get(k, pd.DataFrame()))
@@ -148,20 +149,20 @@ real-time filtering.
         {
             "Source": [
                 "PhonePe Pulse",
-                "NPCI (National Payments Corporation)",
-                "RBI DBIE (Database on Indian Economy)",
+                "NPCI",
+                "RBI DBIE",
             ],
             "Description": [
-                "District-level UPI transaction aggregates, user registrations, device analytics, and insurance data",
-                "Official monthly UPI transaction volumes and values for the entire network",
-                "Currency-in-circulation, ATM transaction data, and macroeconomic indicators",
+                "District-level UPI aggregates, user registrations, device data, insurance",
+                "Monthly UPI transaction volumes and values for the full network",
+                "Currency in circulation, ATM transactions, macroeconomic indicators",
             ],
-            "Update Frequency": ["Quarterly", "Monthly", "Quarterly"],
-            "Ingestion Method": ["GitHub API", "Web Scraping", "API / Manual Download"],
+            "Frequency": ["Quarterly", "Monthly", "Quarterly"],
+            "Ingestion": ["GitHub API", "Web scraping", "API / manual download"],
             "Records": [
-                f"{pp_records:,}" if pp_records else "—",
-                f"{npci_records:,}" if npci_records else "—",
-                f"{rbi_records:,}" if rbi_records else "—",
+                f"{pp_records:,}" if pp_records else "N/A",
+                f"{npci_records:,}" if npci_records else "N/A",
+                f"{rbi_records:,}" if rbi_records else "N/A",
             ],
         }
     )
@@ -170,22 +171,24 @@ real-time filtering.
 
     render_divider()
 
-    # ════════════════════════════════════════════════════════════════════
-    # 3. Data Quality Metrics
-    # ════════════════════════════════════════════════════════════════════
-    render_section_header("🔍 Data Quality Metrics")
+    # ------------------------------------------------------------------
+    # 4. Data Quality
+    # ------------------------------------------------------------------
+    render_section_header("Data Quality")
 
     total_tables = len(data)
     total_records = sum(len(df) for df in data.values())
 
-    # Derive date range from data
     years_set: set[int] = set()
-    for key in ("fact_upi_transactions", "v_monthly_summary", "npci_monthly_volumes", "dim_date"):
+    for key in ("fact_upi_transactions", "v_monthly_summary",
+                "npci_monthly_volumes", "dim_date"):
         df = data.get(key, pd.DataFrame())
         if "year" in df.columns:
             years_set.update(df["year"].dropna().astype(int).unique())
     date_coverage = (
-        f"{min(years_set)}–{max(years_set)}" if years_set else f"{year_range[0]}–{year_range[1]}"
+        f"{min(years_set)}-{max(years_set)}"
+        if years_set
+        else f"{year_range[0]}-{year_range[1]}"
     )
 
     q1, q2, q3, q4 = st.columns(4)
@@ -193,18 +196,23 @@ real-time filtering.
     q2.metric("Total Records", f"{total_records:,}")
     q3.metric("Date Range", date_coverage)
 
-    # Null analysis on fact table
     fact_df = data.get("fact_upi_transactions", pd.DataFrame())
     if not fact_df.empty:
         key_cols = ["txn_count", "txn_value", "year", "quarter", "state_name"]
         nulls = _null_pct(fact_df, key_cols)
-        avg_null = round(sum(nulls.values()) / max(len(nulls), 1), 2) if nulls else 0.0
+        avg_null = (
+            round(sum(nulls.values()) / max(len(nulls), 1), 2) if nulls else 0.0
+        )
         q4.metric("Avg Null % (Fact Table)", f"{avg_null}%")
 
-        st.markdown("**Column-level null analysis** — `fact_upi_transactions`:")
+        st.markdown("**Null analysis -- fact_upi_transactions:**")
         null_df = pd.DataFrame(
             [
-                {"Column": col, "Null %": pct, "Status": "✅ Clean" if pct < 1 else "⚠️ Review"}
+                {
+                    "Column": col,
+                    "Null %": pct,
+                    "Status": "Clean" if pct < 1 else "Needs review",
+                }
                 for col, pct in nulls.items()
             ]
         )
@@ -212,8 +220,7 @@ real-time filtering.
     else:
         q4.metric("Avg Null % (Fact Table)", "N/A")
 
-    # Table inventory
-    with st.expander("📦 **Full table inventory**", expanded=False):
+    with st.expander("Full table inventory", expanded=False):
         inventory = pd.DataFrame(
             [
                 {"Table": name, "Rows": f"{len(df):,}", "Columns": len(df.columns)}
@@ -223,220 +230,189 @@ real-time filtering.
         st.dataframe(inventory, use_container_width=True, hide_index=True)
 
     render_insight(
-        f"📊 The pipeline successfully loaded <strong>{total_tables} tables</strong> "
-        f"comprising <strong>{total_records:,} records</strong> spanning "
-        f"<strong>{date_coverage}</strong>. All datasets pass through automated "
-        "schema validation and null-checking before reaching the dashboard.",
+        f"Pipeline loaded <strong>{total_tables} tables</strong> with "
+        f"<strong>{total_records:,} records</strong> covering "
+        f"<strong>{date_coverage}</strong>. All datasets pass schema "
+        "validation and null checks before reaching the dashboard.",
         variant="success",
     )
 
     render_divider()
 
-    # ════════════════════════════════════════════════════════════════════
-    # 4. Analytics Models
-    # ════════════════════════════════════════════════════════════════════
-    render_section_header("🧮 Analytical Models")
+    # ------------------------------------------------------------------
+    # 5. Analytical Models
+    # ------------------------------------------------------------------
+    render_section_header("Analytical Models")
 
     st.markdown(
-        "The Gold layer produces three families of analytical output, each "
-        "implemented as an independent, reproducible Python module."
+        "The Gold layer produces three categories of output. "
+        "Each is implemented as a standalone Python module."
     )
 
     m1, m2, m3 = st.columns(3)
 
     with m1:
         st.markdown(
-            """
-<div class="about-card">
-<h4>📈 Market Concentration</h4>
-<p style="font-size:0.88rem; color:#555;">
-<strong>Herfindahl-Hirschman Index (HHI)</strong> computed from app-level
-market shares. Tracks equivalent number of firms, identifies concentration
-thresholds, and evaluates the impact of NPCI's 30% volume cap on
-competitive dynamics.
-</p>
-</div>
-""",
+            '<div class="about-card">'
+            "<h4>Market Concentration</h4>"
+            '<p style="font-size:0.88rem; color:#555;">'
+            "Herfindahl-Hirschman Index (HHI) from app-level market shares. "
+            "Tracks equivalent number of competitors and tests the effect "
+            "of NPCI's 30% volume cap."
+            "</p></div>",
             unsafe_allow_html=True,
         )
 
     with m2:
         st.markdown(
-            """
-<div class="about-card">
-<h4>🔮 Forecasting</h4>
-<p style="font-size:0.88rem; color:#555;">
-Dual-model approach: <strong>Facebook Prophet</strong> for trend + seasonality
-decomposition and <strong>ARIMA</strong> for classical time-series modeling.
-Includes seasonal factor extraction and 12-month forward projections with
-confidence intervals.
-</p>
-</div>
-""",
+            '<div class="about-card">'
+            "<h4>Forecasting</h4>"
+            '<p style="font-size:0.88rem; color:#555;">'
+            "Prophet for trend and seasonality decomposition; ARIMA for "
+            "classical time-series modeling. Produces 12-month projections "
+            "with confidence intervals."
+            "</p></div>",
             unsafe_allow_html=True,
         )
 
     with m3:
         st.markdown(
-            """
-<div class="about-card">
-<h4>💵 Cash Displacement</h4>
-<p style="font-size:0.88rem; color:#555;">
-Quantifies the shift from cash to digital payments using the
-<strong>digital-to-cash ratio</strong>, currency velocity analysis, and
-ATM transaction trends. Tracks RBI currency-in-circulation against UPI
-growth to measure real displacement.
-</p>
-</div>
-""",
+            '<div class="about-card">'
+            "<h4>Cash Displacement</h4>"
+            '<p style="font-size:0.88rem; color:#555;">'
+            "Measures the shift from cash to digital payments using the "
+            "digital-to-cash ratio, currency velocity, and ATM transaction "
+            "trends against UPI growth."
+            "</p></div>",
             unsafe_allow_html=True,
         )
 
     render_divider()
 
-    # ════════════════════════════════════════════════════════════════════
-    # 5. Technology Stack
-    # ════════════════════════════════════════════════════════════════════
-    render_section_header("🛠️ Technology Stack")
+    # ------------------------------------------------------------------
+    # 6. Technology Stack
+    # ------------------------------------------------------------------
+    render_section_header("Technology Stack")
 
-    t1, t2, t3, t4 = st.columns(4)
-
-    with t1:
-        st.markdown(
-            """
-<div class="about-card">
-<h4>⚙️ Data Engineering</h4>
-<ul style="font-size:0.88rem; color:#555; padding-left:1.2rem;">
-<li><strong>Python 3.11+</strong></li>
-<li><strong>DuckDB</strong> — in-process OLAP</li>
-<li><strong>Pandas</strong> — data wrangling</li>
-<li><strong>PyArrow</strong> — Parquet I/O</li>
-<li><strong>Make</strong> — pipeline orchestration</li>
-</ul>
-</div>
-""",
-            unsafe_allow_html=True,
-        )
-
-    with t2:
-        st.markdown(
-            """
-<div class="about-card">
-<h4>📐 Analytics</h4>
-<ul style="font-size:0.88rem; color:#555; padding-left:1.2rem;">
-<li><strong>Prophet</strong> — time-series</li>
-<li><strong>statsmodels</strong> — ARIMA</li>
-<li><strong>scikit-learn</strong> — K-Means clustering</li>
-<li><strong>SciPy</strong> — statistical tests</li>
-</ul>
-</div>
-""",
-            unsafe_allow_html=True,
-        )
-
-    with t3:
-        st.markdown(
-            """
-<div class="about-card">
-<h4>📊 Visualization</h4>
-<ul style="font-size:0.88rem; color:#555; padding-left:1.2rem;">
-<li><strong>Streamlit</strong> — app framework</li>
-<li><strong>Plotly</strong> — interactive charts</li>
-<li><strong>Custom CSS</strong> — styled components</li>
-</ul>
-</div>
-""",
-            unsafe_allow_html=True,
-        )
-
-    with t4:
-        st.markdown(
-            """
-<div class="about-card">
-<h4>🚀 CI/CD & Deployment</h4>
-<ul style="font-size:0.88rem; color:#555; padding-left:1.2rem;">
-<li><strong>GitHub Actions</strong> — CI pipeline</li>
-<li><strong>Streamlit Cloud</strong> — hosting</li>
-<li><strong>Apache Parquet</strong> — storage format</li>
-</ul>
-</div>
-""",
-            unsafe_allow_html=True,
-        )
+    tech_df = pd.DataFrame(
+        {
+            "Category": [
+                "Data Engineering",
+                "Data Engineering",
+                "Data Engineering",
+                "Data Engineering",
+                "Data Engineering",
+                "Analytics",
+                "Analytics",
+                "Analytics",
+                "Analytics",
+                "Visualization",
+                "Visualization",
+                "Visualization",
+                "Infrastructure",
+                "Infrastructure",
+                "Infrastructure",
+            ],
+            "Tool": [
+                "Python 3.11+",
+                "DuckDB",
+                "Pandas",
+                "PyArrow",
+                "Make",
+                "Prophet",
+                "statsmodels (ARIMA)",
+                "scikit-learn (K-Means)",
+                "SciPy",
+                "Streamlit",
+                "Plotly",
+                "Custom CSS",
+                "GitHub Actions",
+                "Streamlit Cloud",
+                "Apache Parquet",
+            ],
+            "Role": [
+                "Core language",
+                "In-process OLAP engine",
+                "Data wrangling",
+                "Parquet I/O",
+                "Pipeline orchestration",
+                "Time-series forecasting",
+                "Classical time-series models",
+                "Clustering",
+                "Statistical tests",
+                "Dashboard framework",
+                "Interactive charts",
+                "Component styling",
+                "CI pipeline",
+                "Hosting",
+                "Columnar storage format",
+            ],
+        }
+    )
+    st.dataframe(tech_df, use_container_width=True, hide_index=True)
 
     render_divider()
 
-    # ════════════════════════════════════════════════════════════════════
-    # 6. Limitations & Caveats
-    # ════════════════════════════════════════════════════════════════════
-    render_section_header("⚠️ Limitations & Caveats")
+    # ------------------------------------------------------------------
+    # 7. Limitations
+    # ------------------------------------------------------------------
+    render_section_header("Limitations")
 
-    render_insight(
-        "Transparency about limitations is a hallmark of rigorous research. "
-        "The following caveats should be considered when interpreting results.",
-        variant="warning",
+    st.markdown(
+        "The following caveats apply when interpreting the results."
     )
 
     st.markdown(
         """
-- **PhonePe Pulse coverage**: Transaction data is sourced from PhonePe's
-  open-source repository, which represents PhonePe's view of the ecosystem.
-  It may not capture the full UPI network volume reported by NPCI.
-- **Temporal granularity**: PhonePe data is available at *quarterly*
-  granularity while NPCI data is *monthly*. Joining these requires
-  temporal alignment assumptions.
-- **Geographic mapping**: District-level data relies on PhonePe's internal
-  geographic classification, which may not perfectly align with Census 2011
-  or administrative boundary changes.
-- **Forecasting horizon**: Prophet and ARIMA models are trained on ~42 months
-  of data. Forecasts beyond 6–12 months should be treated as directional
-  indicators, not precise predictions.
-- **Cash displacement proxy**: Currency-in-circulation (CIC) is an imperfect
-  proxy for cash usage — CIC includes hoarded currency and does not
-  distinguish between transactional and precautionary cash holdings.
-- **Market share calculation**: App-level market shares are derived from
-  PhonePe Pulse data, not NPCI's official per-app breakdowns, which are
-  not publicly available at district granularity.
-- **No real-time data**: All data is batch-processed. The dashboard reflects
-  the last pipeline run, not live transaction feeds.
+- **PhonePe-only view**: PhonePe Pulse reflects PhonePe's data, not the
+  full UPI network. Volumes may differ from NPCI totals.
+- **Granularity mismatch**: PhonePe data is quarterly; NPCI data is monthly.
+  Joining them requires temporal alignment assumptions.
+- **Geographic mapping**: District boundaries follow PhonePe's classification,
+  which may not match Census 2011 or recent administrative changes.
+- **Forecast reliability**: Models are trained on roughly 42 months of data.
+  Projections beyond 6-12 months are directional only.
+- **Cash proxy**: Currency in circulation includes hoarded cash and does not
+  separate transactional holdings from precautionary ones.
+- **Market share source**: App-level shares come from PhonePe Pulse, not
+  NPCI's per-app data (unavailable at district level).
+- **Batch processing**: All data is batch-loaded. The dashboard shows the
+  last pipeline run, not live figures.
 """
     )
 
     render_divider()
 
-    # ════════════════════════════════════════════════════════════════════
-    # 7. Glossary
-    # ════════════════════════════════════════════════════════════════════
-    render_section_header("📖 Glossary of Key Terms")
+    # ------------------------------------------------------------------
+    # 8. Glossary
+    # ------------------------------------------------------------------
+    render_section_header("Glossary")
 
-    with st.expander("**Click to expand the full glossary →**", expanded=False):
+    with st.expander("Key terms used in this project", expanded=False):
         st.markdown(
             """
 | Term | Full Form | Definition |
 |------|-----------|------------|
-| **UPI** | Unified Payments Interface | Real-time interbank payment system operated by NPCI enabling instant money transfers via mobile devices |
-| **NPCI** | National Payments Corporation of India | Umbrella organization operating retail payment systems in India including UPI, IMPS, and RuPay |
-| **P2P** | Person-to-Person | UPI transactions between individuals (e.g., splitting a bill, sending money to family) |
-| **P2M** | Person-to-Merchant | UPI transactions from individuals to businesses (e.g., paying at a shop, online purchases) |
-| **HHI** | Herfindahl-Hirschman Index | Market concentration metric calculated as the sum of squared market shares (0–10,000 scale). Higher values indicate greater concentration |
-| **CIC** | Currency in Circulation | Total value of banknotes and coins in public circulation, published by RBI. Used as a proxy for cash economy size |
-| **ARIMA** | Auto-Regressive Integrated Moving Average | Classical statistical model for time-series forecasting combining autoregression, differencing, and moving averages |
-| **Prophet** | — | Open-source forecasting library by Meta that decomposes time series into trend, seasonality, and holiday components |
-| **CAGR** | Compound Annual Growth Rate | Smoothed annualized growth rate over a period, used to compare growth across different time spans |
-| **Lakh Crore** | — | Indian numbering unit equal to 10 trillion (10¹³). ₹1 Lakh Crore = ₹10 trillion ≈ US$120 billion |
-| **PSP** | Payment Service Provider | Entity that provides the UPI app interface to end users (e.g., PhonePe, Google Pay, Paytm) |
-| **TPAP** | Third Party Application Provider | Non-bank entity authorized by NPCI to offer UPI services through a sponsor bank |
-| **VPA** | Virtual Payment Address | UPI identifier (e.g., user@upi) that maps to a bank account without exposing account details |
-| **K-Means** | — | Unsupervised machine learning algorithm that partitions data points into K clusters based on feature similarity |
-| **Star Schema** | — | Dimensional modeling pattern with a central fact table connected to dimension tables, optimized for analytical queries |
-| **Parquet** | — | Columnar storage file format optimized for analytical workloads with efficient compression and encoding |
+| **UPI** | Unified Payments Interface | Real-time interbank payment system by NPCI for instant mobile transfers |
+| **NPCI** | National Payments Corporation of India | Operates retail payment systems including UPI, IMPS, and RuPay |
+| **P2P** | Person-to-Person | UPI transfers between individuals |
+| **P2M** | Person-to-Merchant | UPI payments from individuals to businesses |
+| **HHI** | Herfindahl-Hirschman Index | Sum of squared market shares (0-10,000 scale); higher means more concentrated |
+| **CIC** | Currency in Circulation | Total banknotes and coins in public circulation, published by RBI |
+| **ARIMA** | Auto-Regressive Integrated Moving Average | Statistical time-series model combining autoregression, differencing, and moving averages |
+| **Prophet** | -- | Open-source forecasting library by Meta for trend and seasonality decomposition |
+| **CAGR** | Compound Annual Growth Rate | Annualized growth rate smoothed over a period |
+| **Lakh Crore** | -- | Indian unit equal to 10 trillion (approx. US$120 billion at recent exchange rates) |
+| **PSP** | Payment Service Provider | Entity providing the UPI app to end users (e.g., PhonePe, Google Pay) |
+| **TPAP** | Third Party Application Provider | Non-bank entity authorized to offer UPI through a sponsor bank |
+| **VPA** | Virtual Payment Address | UPI handle (e.g., user@upi) mapped to a bank account |
+| **K-Means** | -- | Clustering algorithm that partitions data into K groups by feature similarity |
+| **Star Schema** | -- | Dimensional model with a central fact table linked to dimension tables |
+| **Parquet** | -- | Columnar file format for analytical workloads with efficient compression |
 """
         )
 
-    st.markdown("")
-
     render_insight(
-        "📬 <strong>Questions or feedback?</strong> This project is open-source "
-        "and welcomes contributions. Review the full source code, pipeline logic, "
-        "and documentation in the project repository.",
+        "This project is open-source. See the repository for full source code, "
+        "pipeline logic, and documentation.",
     )

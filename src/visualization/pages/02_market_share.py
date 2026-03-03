@@ -18,10 +18,10 @@ from src.visualization.components.styles import render_insight, render_divider, 
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Market Concentration tab."""
-    render_section_header("🏢 Market Concentration Analysis")
+    render_section_header("Market Concentration Analysis")
 
     if "fact_market_concentration" not in data or data["fact_market_concentration"].empty:
-        st.warning("⚠️ Market concentration data not available. Run `make all` first.")
+        st.warning("Market concentration data not available. Run `make all` first.")
         return
 
     df = data["fact_market_concentration"].copy()
@@ -36,11 +36,11 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     df = df.sort_values(["year", "month"])
     df["period"] = df["year"].astype(str) + "-" + df["month"].astype(str).str.zfill(2)
 
-    # ── KPI Cards ────────────────────────────────────────────────
+    #  KPI Cards 
     latest = df.iloc[-1]
     hhi_val = latest["hhi_index"]
     classification = latest["concentration_category"]
-    class_icon = "🔴" if hhi_val > 0.25 else ("🟡" if hhi_val > 0.15 else "🟢")
+    class_icon = "[HIGH]" if hhi_val > 0.25 else ("[MOD]" if hhi_val > 0.15 else "[LOW]")
 
     render_kpi_row([
         {"label": "Current HHI", "value": f"{hhi_val:.4f}", "delta_color": "off"},
@@ -57,7 +57,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── HHI Gauge + HHI Trend (side by side) ─────────────────────
+    #  HHI Gauge + HHI Trend (side by side) 
     col1, col2 = st.columns([1, 2])
 
     with col1:
@@ -69,7 +69,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         st.plotly_chart(fig_gauge, use_container_width=True, config=PLOTLY_CONFIG)
 
         # NPCI Cap Compliance
-        st.markdown("##### 📋 NPCI 30% Cap Compliance")
+        st.markdown("##### NPCI 30% Cap Compliance")
         if "app_market_share" in data and not data["app_market_share"].empty:
             share_df = data["app_market_share"].copy()
             latest_month = share_df.loc[share_df["date"] == share_df["date"].max()]
@@ -78,7 +78,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             for _, row in latest_month.iterrows():
                 app = row[app_col]
                 share = row[share_col]
-                status = "🔴 Over Cap" if share > 30 else "🟢 Compliant"
+                status = "OVER CAP" if share > 30 else "Compliant"
                 st.markdown(f"**{app}**: {share:.1f}% — {status}")
 
     with col2:
@@ -90,7 +90,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     render_divider()
 
-    # ── Market Share Visuals ─────────────────────────────────────
+    #  Market Share Visuals 
     col1, col2 = st.columns(2)
 
     with col1:
@@ -105,7 +105,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
             fig_area = create_stacked_area(
                 share_df, x="period", y="market_share_pct", color=app_col,
-                title="📊 Market Share Evolution (100% Stacked)",
+                title="Market Share Evolution (100% Stacked)",
                 color_discrete_map=APP_COLORS,
             )
             st.plotly_chart(fig_area, use_container_width=True, config=PLOTLY_CONFIG)
@@ -123,14 +123,14 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
             fig_bar = create_horizontal_bar(
                 latest_snap, x="market_share_pct", y=app_col,
-                title=f"📊 Market Share Snapshot ({max_year}-{max_month:02d})",
+                title=f"Market Share Snapshot ({max_year}-{max_month:02d})",
                 color=app_col, color_discrete_map=APP_COLORS,
             )
             fig_bar.add_vline(x=30, line_dash="dash", line_color="red", opacity=0.6,
                               annotation_text="NPCI 30% Cap")
             st.plotly_chart(fig_bar, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── Treemap of Market Share ──────────────────────────────────
+    #  Treemap of Market Share 
     if "app_market_share" in data and not data["app_market_share"].empty:
         share_df = data["app_market_share"].copy()
         max_date = share_df["date"].max()
@@ -142,18 +142,18 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             treemap_latest,
             path=["market_label", app_col],
             values="market_share_pct",
-            title="🗂️ UPI Market Share Treemap (Latest Month)",
+            title="UPI Market Share Treemap (Latest Month)",
             color="market_share_pct",
             color_continuous_scale="Purples",
         )
         st.plotly_chart(fig_tree, use_container_width=True, config=PLOTLY_CONFIG)
 
-    # ── Insight Box ──────────────────────────────────────────────
+    #  Insight Box 
     top2 = latest["top2_combined_share"] if "top2_combined_share" in df.columns else 0
     eq_firms = latest["equivalent_firms"] if "equivalent_firms" in df.columns else 0
     if hhi_val > 0.25:
         render_insight(
-            f"<b>⚠️ Highly Concentrated Market:</b> India's UPI market has an HHI of "
+            f"<b>Highly Concentrated Market:</b> India's UPI market has an HHI of "
             f"<b>{hhi_val:.4f}</b>, classified as 'Highly Concentrated' by US DOJ standards. "
             f"PhonePe + Google Pay together control <b>~{top2:.1f}%</b> "
             f"of all UPI transactions. The market effectively behaves as if it has only "

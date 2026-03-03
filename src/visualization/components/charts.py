@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 
-# ── Consistent color palette across the dashboard ────────────────────
+#  Consistent color palette across the dashboard 
 APP_COLORS = {
     "PhonePe": "#5F259F",
     "Google Pay": "#1A73E8",
@@ -74,7 +74,7 @@ def apply_common_layout(fig: go.Figure, height: int | None = None) -> go.Figure:
     return fig
 
 
-# ── Bar Charts ───────────────────────────────────────────────────────
+#  Bar Charts 
 
 
 def create_bar_chart(
@@ -147,7 +147,7 @@ def create_grouped_bar(
     return apply_common_layout(fig, height)
 
 
-# ── Line Charts ──────────────────────────────────────────────────────
+#  Line Charts 
 
 
 def create_line_chart(
@@ -217,7 +217,7 @@ def create_multi_line(
     return apply_common_layout(fig, height)
 
 
-# ── Pie / Donut Charts ──────────────────────────────────────────────
+#  Pie / Donut Charts 
 
 
 def create_donut_chart(
@@ -239,7 +239,7 @@ def create_donut_chart(
     return apply_common_layout(fig, height)
 
 
-# ── Specialized Charts ───────────────────────────────────────────────
+#  Specialized Charts 
 
 
 def create_dual_axis_chart(
