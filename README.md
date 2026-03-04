@@ -1,5 +1,7 @@
 # UPI Analytics Platform
 
+**Live App:** https://upi-analytics.streamlit.app/
+
 An end-to-end data engineering and analytics platform analyzing India's Unified Payments Interface (UPI) -- the world's largest real-time digital payment system by transaction volume.
 
 ---
