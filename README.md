@@ -156,7 +156,8 @@ UPI_DS_Project/
 ├── tests/                # Unit and smoke tests
 ├── technical_reference.md  # Full documentation of datasets, formulas, and methods
 ├── Makefile              # Developer workflow commands
-└── requirements.txt      # Python dependencies
+├── requirements.txt      # Python dependencies
+└── UPI_Dashboard.pdf     #Power BI Report Snapshots
 ```
 
 ---
