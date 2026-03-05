@@ -1,11 +1,6 @@
 name: Monthly Data Pipeline Refresh
 
 on:
-  schedule:
-    # Runs at 02:00 UTC on the 5th of every month
-    # (5th to ensure NPCI has published previous month's data)
-    - cron: "0 2 5 * *"
-
   workflow_dispatch:
     inputs:
       force_refresh:
