@@ -263,9 +263,32 @@ div[data-testid="stMetric"] {
     margin: 0 0 0.4rem 0;
 }
 
+/* --- Chart & Visualization Containers --- */
+[data-testid="stPlotlyChart"] {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+    margin-bottom: 0.5rem;
+}
+
+[data-testid="stVegaLiteChart"] {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+    margin-bottom: 0.5rem;
+}
+
 /* --- Data Tables --- */
 .stDataFrame {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
     overflow: hidden;
 }
 
