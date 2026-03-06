@@ -27,14 +27,17 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     required = ["fact_upi_transactions"]
     missing = [r for r in required if r not in data or data[r].empty]
     if missing:
-        st.warning(f"Missing data: {', '.join(missing)}. Run `make all` first.")
+        render_insight(
+            f"Missing data: {', '.join(missing)}. Run <code>make all</code> first.",
+            variant="warning",
+        )
         return
 
     df = data["fact_upi_transactions"]
     df = df[(df["year"] >= year_range[0]) & (df["year"] <= year_range[1])]
 
     if df.empty:
-        st.info("No data available for the selected year range.")
+        render_insight("No data available for the selected year range.")
         return
 
     #  KPI Cards (6 metrics) 
@@ -131,7 +134,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             )
             st.plotly_chart(fig_monthly, width="stretch", config=PLOTLY_CONFIG)
         else:
-            st.info("Monthly summary data not available.")
+            render_insight("Monthly summary data not available.")
 
     with col2:
         latest_cat = df[df["year"] == latest_year]
@@ -154,7 +157,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             )
             st.plotly_chart(fig_cat, width="stretch", config=PLOTLY_CONFIG)
         else:
-            st.info("Category breakdown data not available.")
+            render_insight("Category breakdown data not available.")
 
     #  Year-over-Year Growth Table 
     if len(yearly) > 1:

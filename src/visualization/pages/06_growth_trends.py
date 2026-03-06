@@ -9,6 +9,7 @@ from src.visualization.components.charts import (
     create_bar_chart,
     create_heatmap,
     create_grouped_bar,
+    APP_COLORS,
     PLOTLY_CONFIG,
     apply_common_layout,
 )
@@ -31,9 +32,10 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     required = ["npci_monthly_volumes"]
     missing = [r for r in required if r not in data or data[r].empty]
     if missing:
-        st.warning(
+        render_insight(
             f"Missing data: {', '.join(missing)}. "
-            "Run `make all` to build the data pipeline first."
+            "Run <code>make all</code> to build the data pipeline first.",
+            variant="warning",
         )
         return
 
@@ -44,7 +46,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     npci = npci.sort_values("date")
 
     if npci.empty:
-        st.info("No data available for the selected year range.")
+        render_insight("No data available for the selected year range.")
         return
 
     #  KPI Cards 
@@ -66,11 +68,11 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     render_kpi_row([
         {"label": "CAGR (Volume)", "value": format_percentage(cagr, with_sign=False),
          "delta": "Compound Annual Growth", "delta_color": "off"},
-        {"label": "Latest Monthly Volume", "value": f"{latest_vol:.1f} Bn",
+        {"label": "Latest Monthly Volume", "value": format_billions(latest_vol * 1e9),
          "delta": npci["date"].iloc[-1].strftime("%b %Y"), "delta_color": "off"},
-        {"label": "Peak Month Volume", "value": f"{peak_vol:.1f} Bn",
+        {"label": "Peak Month Volume", "value": format_billions(peak_vol * 1e9),
          "delta": peak_label, "delta_color": "off"},
-        {"label": "Total Cumulative Volume", "value": f"{total_cumulative:.1f} Bn",
+        {"label": "Total Cumulative Volume", "value": format_billions(total_cumulative * 1e9),
          "delta_color": "off"},
     ])
 
@@ -100,29 +102,30 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             fig_yoy.update_layout(yaxis_tickformat=".0%")
             st.plotly_chart(fig_yoy, width="stretch", config=PLOTLY_CONFIG)
         else:
-            st.info("YoY growth data not available for the selected range.")
+            render_insight("YoY growth data not available for the selected range.")
 
     with col2:
         render_section_header("Monthly Volume Heatmap")
-        month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-        npci["month_name"] = npci["month"].apply(
-            lambda m: month_labels[int(m) - 1] if 1 <= int(m) <= 12 else str(m)
-        )
-        pivot = npci.pivot_table(
-            index="year", columns="month_name",
-            values="transaction_volume_billions", aggfunc="mean",
-        )
-        # Reorder columns to Jan–Dec
-        pivot = pivot.reindex(columns=[m for m in month_labels if m in pivot.columns])
-        pivot.index = pivot.index.astype(int)
+        with st.spinner("Computing heatmap..."):
+            month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            npci["month_name"] = npci["month"].apply(
+                lambda m: month_labels[int(m) - 1] if 1 <= int(m) <= 12 else str(m)
+            )
+            pivot = npci.pivot_table(
+                index="year", columns="month_name",
+                values="transaction_volume_billions", aggfunc="mean",
+            )
+            # Reorder columns to Jan–Dec
+            pivot = pivot.reindex(columns=[m for m in month_labels if m in pivot.columns])
+            pivot.index = pivot.index.astype(int)
 
-        fig_heat = create_heatmap(
-            pivot,
-            title="Volume Heatmap (Bn) — Month × Year",
-            x_label="Month", y_label="Year",
-        )
-        st.plotly_chart(fig_heat, width="stretch", config=PLOTLY_CONFIG)
+            fig_heat = create_heatmap(
+                pivot,
+                title="Volume Heatmap (Bn) — Month × Year",
+                x_label="Month", y_label="Year",
+            )
+            st.plotly_chart(fig_heat, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 
@@ -156,7 +159,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         fig_avg.update_layout(yaxis_title="Avg Value (₹)")
         st.plotly_chart(fig_avg, width="stretch", config=PLOTLY_CONFIG)
     else:
-        st.info("Average transaction value data not available.")
+        render_insight("Average transaction value data not available.")
 
     render_divider()
 
@@ -188,7 +191,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     comparison, x="Category", y="Avg Transactions",
                     title="Avg Monthly Transactions: Festival vs Non-Festival",
                 )
-                fig_fest.update_traces(marker_color=["#FF9900", "#1A73E8"])
+                fig_fest.update_traces(marker_color=[APP_COLORS["warning"], APP_COLORS["primary"]])
                 st.plotly_chart(fig_fest, width="stretch", config=PLOTLY_CONFIG)
 
             with col_b:
@@ -200,12 +203,12 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                     val_comparison, x="Category", y="Avg Transaction Value (₹)",
                     title="Avg Transaction Value: Festival vs Non-Festival",
                 )
-                fig_val.update_traces(marker_color=["#FF9900", "#1A73E8"])
+                fig_val.update_traces(marker_color=[APP_COLORS["warning"], APP_COLORS["primary"]])
                 st.plotly_chart(fig_val, width="stretch", config=PLOTLY_CONFIG)
 
             # Festival month details
             if not festival.empty and "festival_name" in festival.columns:
-                st.markdown("**Festival Months in Data:**")
+                render_section_header("Festival Months in Data")
                 fest_display = festival[["year", "month_name", "festival_name"]].copy()
                 fest_display.columns = ["Year", "Month", "Festival"]
                 st.dataframe(fest_display, width="stretch", hide_index=True)
@@ -221,10 +224,10 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 uplift_text = "Insufficient non-festival data for comparison."
         else:
             uplift_text = "Festival flag data not available in the monthly summary."
-            st.info(uplift_text)
+            render_insight(uplift_text)
     else:
         uplift_text = "Monthly summary data not available for festival analysis."
-        st.info(uplift_text)
+        render_insight(uplift_text)
 
     render_divider()
 
@@ -242,4 +245,4 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         f"Cumulative volume across the period totals <b>{total_cumulative:.1f} Bn</b> "
         f"transactions."
     )
-    render_insight(narrative)
+    render_insight(narrative, variant="success")

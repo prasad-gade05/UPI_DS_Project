@@ -1,6 +1,7 @@
 """Tab 2: Market Concentration — HHI analysis, duopoly metrics, treemap."""
 
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 from src.visualization.components.kpi_cards import render_kpi_row
@@ -20,8 +21,17 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Market Concentration tab."""
     render_section_header("Market Concentration Analysis")
 
+    render_insight(
+        "The <b>Herfindahl-Hirschman Index (HHI)</b> measures market concentration by summing "
+        "squared market shares. Values above 0.25 indicate a highly concentrated market by "
+        "US Department of Justice standards."
+    )
+
     if "fact_market_concentration" not in data or data["fact_market_concentration"].empty:
-        st.warning("Market concentration data not available. Run `make all` first.")
+        render_insight(
+            "Market concentration data not available. Run <code>make all</code> first.",
+            variant="warning",
+        )
         return
 
     df = data["fact_market_concentration"].copy()
@@ -30,7 +40,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     df = df[(df["year"] >= year_range[0]) & (df["year"] <= year_range[1])]
 
     if df.empty:
-        st.info("No data available for the selected year range.")
+        render_insight("No data available for the selected year range.")
         return
 
     df = df.sort_values(["year", "month"])
@@ -68,8 +78,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         )
         st.plotly_chart(fig_gauge, width="stretch", config=PLOTLY_CONFIG)
 
-        # NPCI Cap Compliance
-        st.markdown("##### NPCI 30% Cap Compliance")
+        render_section_header("NPCI 30% Cap Compliance")
         if "app_market_share" in data and not data["app_market_share"].empty:
             share_df = data["app_market_share"].copy()
             latest_month = share_df.loc[share_df["date"] == share_df["date"].max()]
@@ -110,7 +119,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             )
             st.plotly_chart(fig_area, width="stretch", config=PLOTLY_CONFIG)
         else:
-            st.info("App-level market share data not available.")
+            render_insight("App-level market share data not available.")
 
     with col2:
         if "app_market_share" in data and not data["app_market_share"].empty:
@@ -126,8 +135,13 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 title=f"Market Share Snapshot ({max_year}-{max_month:02d})",
                 color=app_col, color_discrete_map=APP_COLORS,
             )
-            fig_bar.add_vline(x=30, line_dash="dash", line_color="red", opacity=0.6,
+            fig_bar.add_vline(x=30, line_dash="dash", line_color=APP_COLORS["negative"], opacity=0.6,
                               annotation_text="NPCI 30% Cap")
+            fig_bar.add_trace(go.Scatter(
+                x=[None], y=[None], mode="lines",
+                line=dict(color=APP_COLORS["negative"], dash="dash"),
+                name="NPCI 30% Cap", showlegend=True,
+            ))
             st.plotly_chart(fig_bar, width="stretch", config=PLOTLY_CONFIG)
 
     #  Treemap of Market Share 

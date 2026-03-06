@@ -1,6 +1,7 @@
 """Tab 7: App Dynamics — Individual UPI app performance analysis."""
 
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 from src.visualization.components.charts import (
@@ -26,9 +27,10 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     #  Validate data 
     if "app_market_share" not in data or data["app_market_share"].empty:
-        st.warning(
+        render_insight(
             "App market share data not available. "
-            "Run `make all` to build the data pipeline first."
+            "Run <code>make all</code> to build the data pipeline first.",
+            variant="warning",
         )
         return
 
@@ -39,7 +41,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         df = df[(df["year"] >= year_range[0]) & (df["year"] <= year_range[1])]
 
     if df.empty:
-        st.info("No data available for the selected year range.")
+        render_insight("No data available for the selected year range.")
         return
 
     df = df.sort_values(["year", "month"])
@@ -94,9 +96,14 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             color=app_col, color_discrete_map=APP_COLORS,
         )
         fig_bar.add_vline(
-            x=30, line_dash="dash", line_color="red", opacity=0.6,
+            x=30, line_dash="dash", line_color=APP_COLORS["negative"], opacity=0.6,
             annotation_text="NPCI 30% Cap",
         )
+        fig_bar.add_trace(go.Scatter(
+            x=[None], y=[None], mode="lines",
+            line=dict(color=APP_COLORS["negative"], dash="dash"),
+            name="NPCI 30% Cap", showlegend=True,
+        ))
         st.plotly_chart(fig_bar, width="stretch", config=PLOTLY_CONFIG)
 
     with col2:
@@ -140,7 +147,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             fig_paytm.add_annotation(
                 x=peak_period, y=paytm_peak,
                 text=f"Peak: {paytm_peak:.1f}%",
-                showarrow=True, arrowhead=2, ax=40, ay=-30,
+                showarrow=True, arrowhead=2, ax=50, ay=-40,
+                font=dict(size=11, color="#0f172a"),
+                arrowcolor="#64748b",
             )
             st.plotly_chart(fig_paytm, width="stretch", config=PLOTLY_CONFIG)
             render_divider()
@@ -179,9 +188,14 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 markers=True,
             )
             fig_duo.add_hline(
-                y=60, line_dash="dash", line_color="orange", opacity=0.5,
-                annotation_text="60% threshold",
+                y=60, line_dash="dash", line_color=APP_COLORS["warning"], opacity=0.5,
+                annotation_text="60% Threshold",
             )
+            fig_duo.add_trace(go.Scatter(
+                x=[None], y=[None], mode="lines",
+                line=dict(color=APP_COLORS["warning"], dash="dash"),
+                name="60% Threshold", showlegend=True,
+            ))
             st.plotly_chart(fig_duo, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()

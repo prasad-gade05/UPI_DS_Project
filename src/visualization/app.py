@@ -61,9 +61,9 @@ st.markdown(
     "Comprehensive Analysis of India's Digital Payments Ecosystem"
     "</p>"
     '<div class="header-badges">'
-    '<span class="header-badge">📊 3 Data Sources</span>'
-    '<span class="header-badge">🗺️ 788 Districts</span>'
-    '<span class="header-badge">📅 42 Months</span>'
+    '<span class="header-badge">3 Data Sources</span>'
+    '<span class="header-badge">788 Districts</span>'
+    '<span class="header-badge">42 Months</span>'
     "</div>"
     "</div>",
     unsafe_allow_html=True,

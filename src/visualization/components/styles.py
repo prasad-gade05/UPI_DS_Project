@@ -5,7 +5,8 @@ import streamlit as st
 CUSTOM_CSS = """
 <style>
 /* ===================================================================
-   UPI Analytics Platform — Professional Design System
+   UPI Analytics Platform — Professional Design System v2
+   Color-rich, formal, intuitive
    =================================================================== */
 
 /* --- Reset & Foundation --- */
@@ -19,52 +20,71 @@ CUSTOM_CSS = """
 
 /* --- Dashboard Header Banner --- */
 .dashboard-header {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #1e40af 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #1e40af 70%, #4338ca 100%);
     color: white;
-    padding: 1.5rem 2rem;
-    border-radius: 10px;
+    padding: 1.75rem 2rem;
+    border-radius: 12px;
     margin-bottom: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(30, 64, 175, 0.12);
+    position: relative;
+    overflow: hidden;
+}
+.dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(ellipse, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+    pointer-events: none;
 }
 .dashboard-title {
-    font-size: 1.75rem;
+    font-size: 1.85rem;
     font-weight: 800;
     color: white;
     margin: 0 0 0.25rem 0;
     letter-spacing: -0.5px;
     line-height: 1.2;
+    position: relative;
 }
 .dashboard-subtitle {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.8);
     margin: 0;
     font-weight: 400;
     line-height: 1.4;
+    position: relative;
 }
 .header-badges {
     display: flex;
     gap: 0.5rem;
-    margin-top: 0.75rem;
+    margin-top: 0.85rem;
     flex-wrap: wrap;
+    position: relative;
 }
 .header-badge {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
     background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(4px);
-    color: rgba(255, 255, 255, 0.9);
-    padding: 0.3rem 0.75rem;
+    backdrop-filter: blur(8px);
+    color: rgba(255, 255, 255, 0.92);
+    padding: 0.35rem 0.85rem;
     border-radius: 20px;
     font-size: 0.78rem;
     font-weight: 500;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: background 0.2s ease;
+}
+.header-badge:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* --- Tab Navigation --- */
 .stTabs [data-baseweb="tab-list"] {
     gap: 0;
-    background-color: transparent;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     border-bottom: 2px solid #e2e8f0;
     padding: 0;
     border-radius: 0;
@@ -72,23 +92,24 @@ CUSTOM_CSS = """
 }
 .stTabs [data-baseweb="tab"] {
     border-radius: 0;
-    padding: 0.6rem 0.9rem;
+    padding: 0.65rem 1rem;
     font-weight: 500;
     font-size: 0.8rem;
     color: #64748b;
-    border-bottom: 2px solid transparent;
+    border-bottom: 2.5px solid transparent;
     margin-bottom: -2px;
     white-space: nowrap;
-    transition: color 0.15s ease, border-color 0.15s ease;
+    transition: all 0.2s ease;
 }
 .stTabs [data-baseweb="tab"]:hover {
     color: #1e3a5f;
+    background: rgba(37, 99, 235, 0.04);
 }
 .stTabs [aria-selected="true"] {
     background-color: transparent !important;
-    color: #0f172a !important;
+    color: #1e40af !important;
     border-bottom-color: #2563eb !important;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 /* --- KPI Metric Cards --- */
@@ -113,12 +134,34 @@ div[data-testid="stMetric"] {
     border-top: 3px solid #2563eb;
     border-radius: 8px;
     padding: 0.85rem 1rem;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+div[data-testid="stMetric"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+/* KPI color variants via nth-child */
+div[data-testid="column"]:nth-child(2) div[data-testid="stMetric"] {
+    border-top-color: #7c3aed;
+}
+div[data-testid="column"]:nth-child(3) div[data-testid="stMetric"] {
+    border-top-color: #059669;
+}
+div[data-testid="column"]:nth-child(4) div[data-testid="stMetric"] {
+    border-top-color: #d97706;
+}
+div[data-testid="column"]:nth-child(5) div[data-testid="stMetric"] {
+    border-top-color: #dc2626;
+}
+div[data-testid="column"]:nth-child(6) div[data-testid="stMetric"] {
+    border-top-color: #0891b2;
 }
 
 /* --- Insight Callout Boxes --- */
 .insight-box {
-    background: #eff6ff;
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f4ff 100%);
     color: #1e3a5f;
     padding: 1rem 1.25rem;
     border-radius: 8px;
@@ -131,7 +174,7 @@ div[data-testid="stMetric"] {
 .insight-box b, .insight-box strong { color: #1e40af; }
 
 .insight-warning {
-    background: #fffbeb;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef9e7 100%);
     color: #78350f;
     padding: 1rem 1.25rem;
     border-radius: 8px;
@@ -144,7 +187,7 @@ div[data-testid="stMetric"] {
 .insight-warning b, .insight-warning strong { color: #92400e; }
 
 .insight-success {
-    background: #ecfdf5;
+    background: linear-gradient(135deg, #ecfdf5 0%, #eefbf3 100%);
     color: #064e3b;
     padding: 1rem 1.25rem;
     border-radius: 8px;
@@ -159,7 +202,7 @@ div[data-testid="stMetric"] {
 /* --- Divider --- */
 .gradient-divider {
     height: 1px;
-    background: #e2e8f0;
+    background: linear-gradient(90deg, transparent 0%, #cbd5e1 20%, #94a3b8 50%, #cbd5e1 80%, transparent 100%);
     border: none;
     border-radius: 0;
     margin: 1.25rem 0;
@@ -168,12 +211,17 @@ div[data-testid="stMetric"] {
 /* --- Scale Metric Cards --- */
 .scale-card {
     text-align: center;
-    padding: 1.1rem 0.75rem;
+    padding: 1.15rem 0.75rem;
     background: #ffffff;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid #e2e8f0;
     border-top: 3px solid #2563eb;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.scale-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.1);
 }
 .scale-card h2 {
     font-size: 1.5rem;
@@ -189,6 +237,17 @@ div[data-testid="stMetric"] {
     letter-spacing: 0.6px;
     font-weight: 600;
 }
+/* Scale card color variants */
+.scale-card.violet { border-top-color: #7c3aed; }
+.scale-card.violet:hover { box-shadow: 0 6px 16px rgba(124, 58, 237, 0.1); }
+.scale-card.emerald { border-top-color: #059669; }
+.scale-card.emerald:hover { box-shadow: 0 6px 16px rgba(5, 150, 105, 0.1); }
+.scale-card.amber { border-top-color: #d97706; }
+.scale-card.amber:hover { box-shadow: 0 6px 16px rgba(217, 119, 6, 0.1); }
+.scale-card.rose { border-top-color: #e11d48; }
+.scale-card.rose:hover { box-shadow: 0 6px 16px rgba(225, 29, 72, 0.1); }
+.scale-card.cyan { border-top-color: #0891b2; }
+.scale-card.cyan:hover { box-shadow: 0 6px 16px rgba(8, 145, 178, 0.1); }
 
 /* --- Hero Header (used in tab pages) --- */
 .hero-title {
@@ -209,8 +268,19 @@ div[data-testid="stMetric"] {
 /* --- Page Header (tab-level title) --- */
 .page-header {
     margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.6rem;
     border-bottom: 2px solid #e2e8f0;
+    position: relative;
+}
+.page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, #2563eb, #7c3aed);
+    border-radius: 1px;
 }
 .page-title {
     font-size: 1.35rem;
@@ -232,8 +302,9 @@ div[data-testid="stMetric"] {
     font-weight: 700;
     color: #0f172a;
     border-bottom: none;
-    border-left: 3px solid #2563eb;
-    padding: 0.25rem 0 0.25rem 0.75rem;
+    border-left: 3px solid;
+    border-image: linear-gradient(180deg, #2563eb, #7c3aed) 1;
+    padding: 0.3rem 0 0.3rem 0.75rem;
     margin: 1.25rem 0 0.6rem 0;
     letter-spacing: -0.2px;
 }
@@ -242,17 +313,24 @@ div[data-testid="stMetric"] {
 .about-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 1.25rem;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     margin-bottom: 0.75rem;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    transition: all 0.2s ease;
     height: 100%;
+    border-top: 3px solid #2563eb;
 }
 .about-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.08);
+    transform: translateY(-2px);
 }
+.about-card.violet-card { border-top-color: #7c3aed; }
+.about-card.violet-card:hover { box-shadow: 0 6px 20px rgba(124, 58, 237, 0.08); }
+.about-card.emerald-card { border-top-color: #059669; }
+.about-card.emerald-card:hover { box-shadow: 0 6px 20px rgba(5, 150, 105, 0.08); }
+.about-card.amber-card { border-top-color: #d97706; }
+.about-card.amber-card:hover { box-shadow: 0 6px 20px rgba(217, 119, 6, 0.08); }
 .about-card h4 {
     color: #0f172a;
     margin: 0 0 0.5rem 0;
@@ -261,22 +339,40 @@ div[data-testid="stMetric"] {
 }
 .about-card p {
     margin: 0 0 0.4rem 0;
+    font-size: 0.88rem;
+    color: #475569;
+    line-height: 1.55;
+}
+.about-card .about-card-link,
+.about-card p:last-child a {
+    font-size: 0.8rem;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+.about-card .about-card-link a:hover,
+.about-card p:last-child a:hover {
+    text-decoration: underline;
 }
 
 /* --- Chart & Visualization Containers --- */
 [data-testid="stPlotlyChart"] {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
     margin-bottom: 0.5rem;
+    transition: box-shadow 0.2s ease;
+}
+[data-testid="stPlotlyChart"]:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
 }
 
 [data-testid="stVegaLiteChart"] {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
     margin-bottom: 0.5rem;
@@ -286,7 +382,7 @@ div[data-testid="stMetric"] {
 .stDataFrame {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
     overflow: hidden;
@@ -295,8 +391,12 @@ div[data-testid="stMetric"] {
 /* --- Expander --- */
 [data-testid="stExpander"] {
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+[data-testid="stExpander"]:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* --- Footer --- */
@@ -305,8 +405,18 @@ div[data-testid="stMetric"] {
     color: #94a3b8;
     font-size: 0.8rem;
     padding: 1.25rem 0 0.5rem 0;
-    border-top: 1px solid #e2e8f0;
+    border-top: none;
     margin-top: 1.5rem;
+    position: relative;
+}
+.footer-text::before {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, #2563eb, #7c3aed);
+    margin: 0 auto 1rem auto;
+    border-radius: 1px;
 }
 .footer-text a {
     color: #2563eb;
@@ -315,6 +425,7 @@ div[data-testid="stMetric"] {
 }
 .footer-text a:hover {
     text-decoration: underline;
+    color: #7c3aed;
 }
 
 /* --- Form Labels --- */
@@ -339,25 +450,42 @@ div[data-testid="stMetric"] {
     margin: 1rem 0;
 }
 .pipeline-stage {
-    background: #f8fafc;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    padding: 0.7rem 1.3rem;
     font-size: 0.85rem;
     font-weight: 600;
     color: #1e293b;
     text-align: center;
+    transition: all 0.2s ease;
+}
+.pipeline-stage:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 .pipeline-arrow {
     color: #94a3b8;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     padding: 0 0.5rem;
 }
 .pipeline-stage.active {
-    background: #2563eb;
+    background: linear-gradient(135deg, #2563eb 0%, #4338ca 100%);
     color: white;
     border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
+
+/* --- Spinner --- */
+[data-testid="stSpinner"] {
+    color: #2563eb !important;
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #64748b; }
 </style>
 """
 
@@ -382,10 +510,11 @@ def render_divider():
     st.markdown('<div class="gradient-divider"></div>', unsafe_allow_html=True)
 
 
-def render_scale_card(value: str, label: str):
-    """Render a scale metric card."""
+def render_scale_card(value: str, label: str, color: str = ""):
+    """Render a scale metric card with optional color variant."""
+    cls = f"scale-card {color}" if color else "scale-card"
     st.markdown(
-        f'<div class="scale-card"><h2>{value}</h2><p>{label}</p></div>',
+        f'<div class="{cls}"><h2>{value}</h2><p>{label}</p></div>',
         unsafe_allow_html=True,
     )
 

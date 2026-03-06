@@ -37,14 +37,14 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     devices_df = data.get("phonepe_device_brands")
 
     if users_df is None or users_df.empty:
-        st.warning("User aggregate data is not available.")
+        render_insight("User aggregate data is not available.", variant="warning")
         return
 
     users = _filter_year(users_df, year_range).sort_values("quarter_start_date")
     devices = _filter_year(devices_df, year_range).sort_values("quarter_start_date") if devices_df is not None and not devices_df.empty else pd.DataFrame()
 
     if users.empty:
-        st.info("No user data available for the selected year range.")
+        render_insight("No user data available for the selected year range.")
         return
 
     # --- KPI row ----------------------------------------------------------------

@@ -8,6 +8,7 @@ from src.visualization.components.styles import (
     render_insight,
     render_divider,
     render_section_header,
+    render_page_header,
 )
 
 
@@ -31,15 +32,9 @@ def _null_pct(df: pd.DataFrame, columns: list[str]) -> dict[str, float]:
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Methodology & Data Quality page."""
 
-    st.markdown(
-        '<div class="hero-title">Methodology & Data Quality</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="hero-subtitle">'
-        "Pipeline design, data sources, quality checks, models, and limitations."
-        "</div>",
-        unsafe_allow_html=True,
+    render_page_header(
+        "Methodology & Data Quality",
+        "Pipeline design, data sources, quality checks, models, and limitations.",
     )
 
     render_divider()
@@ -91,7 +86,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         st.markdown(
             '<div class="about-card">'
             "<h4>Bronze Layer</h4>"
-            '<p style="font-size:0.88rem; color:#555;">'
+            "<p>"
             "Raw data from PhonePe Pulse GitHub API, NPCI CSVs, and "
             "RBI DBIE exports. Stored as-is in Parquet with ingestion metadata."
             "</p></div>",
@@ -100,9 +95,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     with layer2:
         st.markdown(
-            '<div class="about-card">'
+            '<div class="about-card violet-card">'
             "<h4>Silver Layer</h4>"
-            '<p style="font-size:0.88rem; color:#555;">'
+            "<p>"
             "Schema normalization, deduplication, null handling, type casting, "
             "and date standardization. Produces star-schema fact and dimension tables."
             "</p></div>",
@@ -111,9 +106,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     with layer3:
         st.markdown(
-            '<div class="about-card">'
+            '<div class="about-card amber-card">'
             "<h4>Gold Layer</h4>"
-            '<p style="font-size:0.88rem; color:#555;">'
+            "<p>"
             "Aggregations, HHI market concentration, Prophet and ARIMA forecasts, "
             "K-Means clustering, and cash-displacement analysis."
             "</p></div>",
@@ -122,9 +117,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     with layer4:
         st.markdown(
-            '<div class="about-card">'
+            '<div class="about-card emerald-card">'
             "<h4>Dashboard</h4>"
-            '<p style="font-size:0.88rem; color:#555;">'
+            "<p>"
             "Streamlit app with Plotly charts. Reads Gold-layer Parquet files "
             "and renders 10+ views with filtering."
             "</p></div>",
@@ -213,7 +208,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         )
         q4.metric("Avg Null % (Fact Table)", f"{avg_null}%")
 
-        st.markdown("**Null analysis -- fact_upi_transactions:**")
+        render_section_header("Null Analysis — fact_upi_transactions")
         null_df = pd.DataFrame(
             [
                 {
@@ -263,7 +258,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         st.markdown(
             '<div class="about-card">'
             "<h4>Market Concentration</h4>"
-            '<p style="font-size:0.88rem; color:#555;">'
+            "<p>"
             "Herfindahl-Hirschman Index (HHI) from app-level market shares. "
             "Tracks equivalent number of competitors and tests the effect "
             "of NPCI's 30% volume cap."
@@ -273,9 +268,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     with m2:
         st.markdown(
-            '<div class="about-card">'
+            '<div class="about-card violet-card">'
             "<h4>Forecasting</h4>"
-            '<p style="font-size:0.88rem; color:#555;">'
+            "<p>"
             "Prophet for trend and seasonality decomposition; ARIMA for "
             "classical time-series modeling. Produces 12-month projections "
             "with confidence intervals."
@@ -285,9 +280,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     with m3:
         st.markdown(
-            '<div class="about-card">'
+            '<div class="about-card emerald-card">'
             "<h4>Cash Displacement</h4>"
-            '<p style="font-size:0.88rem; color:#555;">'
+            "<p>"
             "Measures the shift from cash to digital payments using the "
             "digital-to-cash ratio, currency velocity, and ATM transaction "
             "trends against UPI growth."

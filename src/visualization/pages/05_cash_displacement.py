@@ -11,6 +11,7 @@ from src.visualization.components.charts import (
     create_dual_axis_chart,
     create_line_chart,
     create_bar_chart,
+    APP_COLORS,
     PLOTLY_CONFIG,
 )
 from src.visualization.components.styles import render_insight, render_divider, render_section_header
@@ -20,10 +21,17 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Cash Displacement tab."""
     render_section_header("Cash vs Digital — Is India Going Cashless?")
 
+    render_insight(
+        "This analysis compares UPI transaction values against currency in circulation (CIC) "
+        "to measure India's shift from cash to digital payments. A rising digital-to-cash ratio "
+        "signals increasing digital adoption — but does not necessarily mean declining cash usage."
+    )
+
     if "fact_cash_displacement" not in data or data["fact_cash_displacement"].empty:
-        st.warning(
+        render_insight(
             "Cash displacement data not available. "
-            "Run `make all` to build the data pipeline first."
+            "Run <code>make all</code> to build the data pipeline first.",
+            variant="warning",
         )
         return
 
@@ -33,7 +41,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     df = df[(df["year"] >= year_range[0]) & (df["year"] <= year_range[1])]
 
     if df.empty:
-        st.info("No data available for the selected year range.")
+        render_insight("No data available for the selected year range.")
         return
 
     df = df.sort_values(["year", "month"])
@@ -72,7 +80,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         df, x="period", y1="upi_value_lakh_cr", y2="cic_lakh_cr",
         title="UPI Transaction Value vs Currency in Circulation",
         y1_name="UPI Value (₹ Lakh Cr)", y2_name="Currency in Circulation (₹ Lakh Cr)",
-        y1_color="#1A73E8", y2_color="#00C853",
+        y1_color=APP_COLORS["primary"], y2_color=APP_COLORS["positive"],
     )
     st.plotly_chart(fig_dual, width="stretch", config=PLOTLY_CONFIG)
 
@@ -110,7 +118,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 growth_melted, x="year", y="growth_pct",
                 title="Annual Growth Rate Comparison (%)",
                 color="metric",
-                color_discrete_map={"UPI Growth": "#1A73E8", "Cash Growth": "#00C853"},
+                color_discrete_map={"UPI Growth": APP_COLORS["primary"], "Cash Growth": APP_COLORS["positive"]},
             )
             st.plotly_chart(fig_growth, width="stretch", config=PLOTLY_CONFIG)
 
@@ -145,7 +153,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     #  ATM Transaction Comparison 
     if "rbi_atm_transactions" in data and not data["rbi_atm_transactions"].empty:
         render_divider()
-        st.markdown("##### ATM Transaction Trends")
+        render_section_header("ATM Transaction Trends")
         atm = data["rbi_atm_transactions"].copy()
         atm["quarter_start_date"] = pd.to_datetime(atm["quarter_start_date"])
         atm = atm.sort_values("quarter_start_date")

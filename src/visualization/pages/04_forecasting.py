@@ -16,11 +16,18 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Forecasting tab."""
     render_section_header("UPI Growth Forecasting — ML-Powered Projections")
 
+    render_insight(
+        "This section uses <b>Prophet</b> (additive decomposition by Meta) and "
+        "<b>ARIMA</b> (classical auto-regressive) models to project UPI transaction volumes "
+        "12 months ahead, with confidence intervals and seasonal factor analysis."
+    )
+
     #  Check for forecast data 
     if "forecast_combined" not in data or data["forecast_combined"].empty:
-        st.warning(
+        render_insight(
             "Forecast data not available. "
-            "Run the analytics engine (`make analyze`) to generate forecasts."
+            "Run the analytics engine (<code>make analyze</code>) to generate forecasts.",
+            variant="warning",
         )
         _show_placeholder()
         return
@@ -90,7 +97,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     fig.add_trace(go.Scatter(
         x=actual["date"], y=actual["volume_bn"],
         name="Actual", mode="lines+markers",
-        line=dict(color="#1A73E8", width=2.5),
+        line=dict(color=APP_COLORS["primary"], width=2.5),
         marker=dict(size=5),
     ))
 
@@ -108,7 +115,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         fig.add_trace(go.Scatter(
             x=arima_df["date"], y=arima_df["arima_forecast_bn"],
             name="ARIMA Forecast", mode="lines",
-            line=dict(color="#FF9900", width=2, dash="dot"),
+            line=dict(color=APP_COLORS["warning"], width=2, dash="dot"),
         ))
 
     # Forecast start separator
@@ -119,8 +126,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             yref="paper", line=dict(color="gray", width=1, dash="dot"),
         )
         fig.add_annotation(
-            x=last_date, y=1, yref="paper", text="Forecast Start",
-            showarrow=False, font=dict(size=10, color="gray"),
+            x=last_date, y=1, yref="paper", text="Forecast Start ▸",
+            showarrow=False, font=dict(size=10, color="#64748b"),
+            xanchor="right", xshift=-6,
         )
 
     fig.update_layout(
@@ -149,11 +157,11 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             )
             st.plotly_chart(fig_seasonal, width="stretch", config=PLOTLY_CONFIG)
         else:
-            st.info("Seasonal factor data not available.")
+            render_insight("Seasonal factor data not available.")
 
     with col2:
         if has_arima:
-            st.markdown("##### ARIMA Forecast Details")
+            render_section_header("ARIMA Forecast Details")
             arima_display = data["arima_forecast"].copy()
             arima_display["date"] = pd.to_datetime(arima_display["date"]).dt.strftime("%b %Y")
             arima_display.columns = ["Month", "Forecast (Bn)", "Lower CI", "Upper CI"]
@@ -161,8 +169,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 arima_display[c] = arima_display[c].apply(lambda x: f"{x:.2f}")
             st.dataframe(arima_display, width="stretch", hide_index=True)
 
-            # Model comparison
-            st.markdown("##### Model Comparison")
+            render_section_header("Model Comparison")
             if not forecasted.empty and not arima_df.empty:
                 prophet_end = forecasted["volume_bn"].iloc[-1]
                 arima_end = arima_df["arima_forecast_bn"].iloc[-1]
@@ -173,7 +180,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
                 })
                 st.dataframe(comparison, width="stretch", hide_index=True)
         else:
-            st.info("ARIMA forecast data not available.")
+            render_insight("ARIMA forecast data not available.")
 
     #  Forecast Insight 
     milestone_text = f"projected to reach <b>25 Bn/month</b> by <b>{milestone_date.strftime('%B %Y')}</b>" if milestone_date else "on track for continued growth"
@@ -189,9 +196,9 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
 def _show_placeholder() -> None:
     """Show placeholder content when forecast data isn't ready."""
-    st.info(
-        "Once the analytics engine runs, this tab will display:\n"
-        "- **Prophet forecast** with confidence intervals\n"
-        "- **ARIMA comparison** forecast\n"
-        "- **Seasonal factors** by month"
+    render_insight(
+        "Once the analytics engine runs, this tab will display:<br>"
+        "• <b>Prophet forecast</b> with confidence intervals<br>"
+        "• <b>ARIMA comparison</b> forecast<br>"
+        "• <b>Seasonal factors</b> by month",
     )

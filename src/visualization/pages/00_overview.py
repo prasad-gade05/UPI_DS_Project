@@ -71,7 +71,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
 
     if "transaction_volume_billions" in npci.columns and not npci.empty:
         total_vol = npci["transaction_volume_billions"].sum()
-        vol_label = f"{total_vol:.0f} Bn"
+        vol_label = format_billions(total_vol * 1e9)
     else:
         fact = data.get("fact_upi_transactions", pd.DataFrame())
         total_vol = fact["txn_count"].sum() if "txn_count" in fact.columns else 0
@@ -81,15 +81,15 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     with col1:
         render_scale_card(f"{total_data_points:,}", "Total Data Points")
     with col2:
-        render_scale_card(str(n_states), "States & UTs")
+        render_scale_card(str(n_states), "States & UTs", color="violet")
     with col3:
-        render_scale_card(str(n_districts), "Districts Mapped")
+        render_scale_card(str(n_districts), "Districts Mapped", color="emerald")
     with col4:
-        render_scale_card(str(n_apps), "UPI Apps Analyzed")
+        render_scale_card(str(n_apps), "UPI Apps Analyzed", color="amber")
     with col5:
-        render_scale_card(time_span, "Time Span")
+        render_scale_card(time_span, "Time Span", color="rose")
     with col6:
-        render_scale_card(vol_label, "Txn Volume Processed")
+        render_scale_card(vol_label, "Txn Volume Processed", color="cyan")
 
     st.markdown("")
 
@@ -149,11 +149,11 @@ displacement measurement -- applied to a payment system in a country of over 1.4
         st.markdown(
             '<div class="about-card">'
             "<h4>PhonePe Pulse</h4>"
-            '<p style="font-size:0.9rem; color:#555;">'
+            "<p>"
             "Open-source dataset with district-level UPI adoption data, quarterly user "
             "registrations, and app-open metrics across all Indian states and districts."
             "</p>"
-            '<p style="font-size:0.8rem; color:#888;">'
+            '<p class="about-card-link">'
             '<a href="https://github.com/PhonePe/pulse" target="_blank">github.com/PhonePe/pulse</a>'
             "</p></div>",
             unsafe_allow_html=True,
@@ -161,13 +161,13 @@ displacement measurement -- applied to a payment system in a country of over 1.4
 
     with src2:
         st.markdown(
-            '<div class="about-card">'
+            '<div class="about-card violet-card">'
             "<h4>NPCI Statistics</h4>"
-            '<p style="font-size:0.9rem; color:#555;">'
+            "<p>"
             "Official monthly UPI transaction volumes and values published by the National "
             "Payments Corporation of India — the organization operating UPI."
             "</p>"
-            '<p style="font-size:0.8rem; color:#888;">'
+            '<p class="about-card-link">'
             '<a href="https://www.npci.org.in/what-we-do/upi/upi-ecosystem-statistics" target="_blank">npci.org.in</a>'
             "</p></div>",
             unsafe_allow_html=True,
@@ -175,13 +175,13 @@ displacement measurement -- applied to a payment system in a country of over 1.4
 
     with src3:
         st.markdown(
-            '<div class="about-card">'
+            '<div class="about-card emerald-card">'
             "<h4>RBI DBIE</h4>"
-            '<p style="font-size:0.9rem; color:#555;">'
+            "<p>"
             "Reserve Bank of India's Database on Indian Economy — macroeconomic data "
             "including currency-in-circulation used for cash displacement analysis."
             "</p>"
-            '<p style="font-size:0.8rem; color:#888;">'
+            '<p class="about-card-link">'
             '<a href="https://dbie.rbi.org.in" target="_blank">dbie.rbi.org.in</a>'
             "</p></div>",
             unsafe_allow_html=True,
@@ -264,6 +264,6 @@ def _render_key_insights(data: dict[str, pd.DataFrame], year_range: tuple) -> No
             with cols[i % len(cols)]:
                 render_insight(text, variant="default")
     else:
-        st.info("Run the data pipeline to generate insights.")
+        render_insight("Run the data pipeline to generate insights.")
 
 

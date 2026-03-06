@@ -27,6 +27,11 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the District-Level Deep Dive tab."""
     render_page_header("District-Level Deep Dive")
 
+    render_insight(
+        "Districts are grouped into <b>adoption tiers</b> using K-Means clustering on transaction "
+        "volume and value. The Gini coefficient measures inequality in UPI adoption within each state."
+    )
+
     clusters = data.get("district_clusters", pd.DataFrame())
     underserved = data.get("underserved_districts", pd.DataFrame())
     state_anal = data.get("state_analysis", pd.DataFrame())
@@ -34,9 +39,10 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     geography = data.get("dim_geography", pd.DataFrame())
 
     if clusters.empty:
-        st.warning(
+        render_insight(
             "District cluster data not available. "
-            "Run `make all` to build the data pipeline first."
+            "Run <code>make all</code> to build the data pipeline first.",
+            variant="warning",
         )
         return
 
@@ -93,17 +99,18 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     #  2. District Scatter Plot 
     render_section_header("District Transaction Landscape")
 
-    fig_scatter = create_scatter(
-        clusters,
-        x="total_txn",
-        y="avg_txn_value",
-        title="District Transactions vs Avg Transaction Value",
-        color="adoption_tier",
-        size="total_value",
-        hover_name="district_clean",
-        color_discrete_map=CLUSTER_COLORS,
-        log_x=True,
-    )
+    with st.spinner("Rendering district scatter plot..."):
+        fig_scatter = create_scatter(
+            clusters,
+            x="total_txn",
+            y="avg_txn_value",
+            title="District Transactions vs Avg Transaction Value",
+            color="adoption_tier",
+            size="total_value",
+            hover_name="district_clean",
+            color_discrete_map=CLUSTER_COLORS,
+            log_x=True,
+        )
     st.plotly_chart(fig_scatter, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
@@ -118,7 +125,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     col_top, col_bottom = st.columns(2)
 
     with col_top:
-        st.subheader("Top 10 Districts")
+        render_section_header("Top 10 Districts")
         st.dataframe(
             top_10.rename(columns={
                 "district_clean": "District",
@@ -130,7 +137,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         )
 
     with col_bottom:
-        st.subheader("Bottom 10 Districts")
+        render_section_header("Bottom 10 Districts")
         st.dataframe(
             bottom_10.rename(columns={
                 "district_clean": "District",
@@ -186,19 +193,20 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     #  6. Adoption Tier Treemap 
     render_section_header("Adoption Tier Treemap")
 
-    treemap_df = clusters[["adoption_tier", "state_clean", "total_txn"]].copy()
-    treemap_df = treemap_df.dropna(subset=["adoption_tier", "state_clean", "total_txn"])
+    with st.spinner("Building treemap..."):
+        treemap_df = clusters[["adoption_tier", "state_clean", "total_txn"]].copy()
+        treemap_df = treemap_df.dropna(subset=["adoption_tier", "state_clean", "total_txn"])
 
-    fig_treemap = create_treemap(
-        treemap_df,
-        path=["adoption_tier", "state_clean"],
-        values="total_txn",
-        title="District Transactions by Adoption Tier & State",
-        color="total_txn",
-        height=600,
-    )
-    fig_treemap.update_layout(margin=dict(l=10, r=10, t=50, b=10))
-    st.plotly_chart(fig_treemap, width="stretch", config=PLOTLY_CONFIG)
+        fig_treemap = create_treemap(
+            treemap_df,
+            path=["adoption_tier", "state_clean"],
+            values="total_txn",
+            title="District Transactions by Adoption Tier & State",
+            color="total_txn",
+            height=600,
+        )
+        fig_treemap.update_layout(margin=dict(l=10, r=10, t=50, b=10))
+        st.plotly_chart(fig_treemap, width="stretch", config=PLOTLY_CONFIG)
 
     render_divider()
 

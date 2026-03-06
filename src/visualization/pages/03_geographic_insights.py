@@ -111,7 +111,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
             if fig_bubble is not None:
                 st.plotly_chart(fig_bubble, width="stretch", config=PLOTLY_CONFIG)
             else:
-                st.info("Bubble map requires state coordinate data.")
+                render_insight("Bubble map requires state coordinate data.")
 
     render_divider()
 
