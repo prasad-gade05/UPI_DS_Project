@@ -65,7 +65,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         {"label": "Seasonal Peak", "value": f"{peak_month}", "delta_color": "off"},
     ])
 
-    st.markdown("---")
+    render_divider()
 
     #  Actual + Forecast Chart 
     fig = go.Figure()

@@ -21,12 +21,12 @@ from src.visualization.components.styles import (
     render_insight,
     render_divider,
     render_section_header,
+    render_page_header,
 )
-
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the Growth & Trends tab."""
-    st.header("Growth & Trends")
+    render_page_header("Growth & Trends")
 
     required = ["npci_monthly_volumes"]
     missing = [r for r in required if r not in data or data[r].empty]

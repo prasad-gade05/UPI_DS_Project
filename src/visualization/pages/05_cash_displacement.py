@@ -65,7 +65,7 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
          "delta": "NOT Cashless", "delta_color": "off"},
     ])
 
-    st.markdown("---")
+    render_divider()
 
     #  Dual-Axis Chart: UPI vs Cash 
     fig_dual = create_dual_axis_chart(

@@ -72,9 +72,17 @@ def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
         "four stages of progressive refinement."
     )
 
-    st.code(
-        "Bronze (Raw)  -->  Silver (Cleaned)  -->  Gold (Analytics)  -->  Dashboard (Streamlit)",
-        language=None,
+    st.markdown(
+        '<div class="pipeline-flow">'
+        '<span class="pipeline-stage">Bronze (Raw)</span>'
+        '<span class="pipeline-arrow">→</span>'
+        '<span class="pipeline-stage">Silver (Cleaned)</span>'
+        '<span class="pipeline-arrow">→</span>'
+        '<span class="pipeline-stage">Gold (Analytics)</span>'
+        '<span class="pipeline-arrow">→</span>'
+        '<span class="pipeline-stage active">Dashboard</span>'
+        '</div>',
+        unsafe_allow_html=True,
     )
 
     layer1, layer2, layer3, layer4 = st.columns(4)

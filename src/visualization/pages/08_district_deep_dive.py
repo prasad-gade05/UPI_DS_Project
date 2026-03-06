@@ -17,6 +17,7 @@ from src.visualization.components.styles import (
     render_insight,
     render_divider,
     render_section_header,
+    render_page_header,
 )
 
 TIER_ORDER = ["Very Low Adoption", "Low Adoption", "Medium Adoption", "High Adoption"]
@@ -24,7 +25,7 @@ TIER_ORDER = ["Very Low Adoption", "Low Adoption", "Medium Adoption", "High Adop
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the District-Level Deep Dive tab."""
-    st.header("District-Level Deep Dive")
+    render_page_header("District-Level Deep Dive")
 
     clusters = data.get("district_clusters", pd.DataFrame())
     underserved = data.get("underserved_districts", pd.DataFrame())

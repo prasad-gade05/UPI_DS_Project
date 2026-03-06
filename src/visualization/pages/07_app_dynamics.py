@@ -16,12 +16,13 @@ from src.visualization.components.styles import (
     render_insight,
     render_divider,
     render_section_header,
+    render_page_header,
 )
 
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
     """Render the App Dynamics tab."""
-    st.header("App Dynamics")
+    render_page_header("App Dynamics")
 
     #  Validate data 
     if "app_market_share" not in data or data["app_market_share"].empty:

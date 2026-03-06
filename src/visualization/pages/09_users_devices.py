@@ -8,7 +8,7 @@ from src.visualization.components.charts import (
     APP_COLORS, PLOTLY_CONFIG, apply_common_layout,
 )
 from src.visualization.components.kpi_cards import render_kpi_row, format_billions, format_percentage
-from src.visualization.components.styles import render_insight, render_divider, render_section_header
+from src.visualization.components.styles import render_insight, render_divider, render_section_header, render_page_header
 
 
 # ---------------------------------------------------------------------------
@@ -30,8 +30,7 @@ def _qoq_growth(series: pd.Series) -> pd.Series:
 # ---------------------------------------------------------------------------
 
 def render(data: dict[str, pd.DataFrame], year_range: tuple[int, int]) -> None:
-    st.header("Users & Devices")
-    st.markdown("User adoption trends, device brand distribution, and insurance data from PhonePe.")
+    render_page_header("Users & Devices", "User adoption trends, device brand distribution, and insurance data from PhonePe.")
 
     # --- Validate required data -------------------------------------------------
     users_df = data.get("phonepe_user_aggregates")

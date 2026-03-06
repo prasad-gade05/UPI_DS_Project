@@ -53,24 +53,26 @@ if not data:
     )
     st.stop()
 
-#  Header Bar 
-col_title, col_filter = st.columns([3, 1])
+#  Professional Header 
+st.markdown(
+    '<div class="dashboard-header">'
+    '<h1 class="dashboard-title">UPI Analytics Platform</h1>'
+    '<p class="dashboard-subtitle">'
+    "Comprehensive Analysis of India's Digital Payments Ecosystem"
+    "</p>"
+    '<div class="header-badges">'
+    '<span class="header-badge">📊 3 Data Sources</span>'
+    '<span class="header-badge">🗺️ 788 Districts</span>'
+    '<span class="header-badge">📅 42 Months</span>'
+    "</div>"
+    "</div>",
+    unsafe_allow_html=True,
+)
 
-with col_title:
-    st.markdown(
-        '<h1 class="hero-title">UPI Analytics Platform</h1>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<p class="hero-subtitle">'
-        "Comprehensive Analysis of India's Digital Payments Ecosystem &nbsp;|&nbsp; "
-        "3 Data Sources &nbsp;•&nbsp; 788 Districts &nbsp;•&nbsp; 42 Months"
-        "</p>",
-        unsafe_allow_html=True,
-    )
-
+#  Filter Bar 
+years = get_available_years(data)
+col_spacer, col_filter = st.columns([4, 1])
 with col_filter:
-    years = get_available_years(data)
     year_range = st.slider(
         "Year Range",
         min_value=min(years),
@@ -122,7 +124,7 @@ for tab, page in zip(tabs, TAB_PAGES):
             st.code(traceback.format_exc(), language="text")
         render_divider()
         st.markdown(
-            '<p style="text-align:center; color:#888; font-size:0.9rem;">'
+            '<p class="footer-text">'
             'Made by <a href="https://prasadgade.dev" target="_blank">Prasad Gade</a>'
             ' · <a href="https://github.com/prasad-gade05/UPI_DS_Project" target="_blank">GitHub Repository</a>'
             '</p>',

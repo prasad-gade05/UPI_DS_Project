@@ -9,49 +9,49 @@ import numpy as np
 
 #  Consistent color palette across the dashboard 
 APP_COLORS = {
-    "PhonePe": "#5F259F",
-    "Google Pay": "#1A73E8",
-    "Paytm": "#00BAF2",
-    "CRED": "#1C1C1C",
-    "Amazon Pay": "#FF9900",
-    "WhatsApp Pay": "#25D366",
-    "Others": "#95A5A6",
-    "primary": "#6C63FF",
-    "secondary": "#764ba2",
-    "positive": "#00C853",
-    "negative": "#FF1744",
-    "warning": "#FFA000",
-    "info": "#1A73E8",
+    "PhonePe": "#5B21B6",
+    "Google Pay": "#2563EB",
+    "Paytm": "#0891B2",
+    "CRED": "#1E293B",
+    "Amazon Pay": "#D97706",
+    "WhatsApp Pay": "#059669",
+    "Others": "#94A3B8",
+    "primary": "#2563EB",
+    "secondary": "#7C3AED",
+    "positive": "#059669",
+    "negative": "#DC2626",
+    "warning": "#D97706",
+    "info": "#0284C7",
 }
 
 CLUSTER_COLORS = {
-    "Very Low Adoption": "#FF1744",
-    "Low Adoption": "#FFA000",
-    "Medium Adoption": "#7CB342",
-    "High Adoption": "#00C853",
+    "Very Low Adoption": "#DC2626",
+    "Low Adoption": "#D97706",
+    "Medium Adoption": "#16A34A",
+    "High Adoption": "#059669",
 }
 
 CATEGORY_COLORS = {
-    "Peer-to-Peer Payments": "#6C63FF",
-    "Merchant Payments": "#1A73E8",
-    "Recharge & Bill Payments": "#00C853",
-    "Financial Services": "#FF9900",
-    "Others": "#95A5A6",
-    "p2p_payments": "#6C63FF",
-    "merchant_payments": "#1A73E8",
-    "recharge_bill_payments": "#00C853",
-    "financial_services": "#FF9900",
-    "others": "#95A5A6",
+    "Peer-to-Peer Payments": "#2563EB",
+    "Merchant Payments": "#7C3AED",
+    "Recharge & Bill Payments": "#059669",
+    "Financial Services": "#D97706",
+    "Others": "#94A3B8",
+    "p2p_payments": "#2563EB",
+    "merchant_payments": "#7C3AED",
+    "recharge_bill_payments": "#059669",
+    "financial_services": "#D97706",
+    "others": "#94A3B8",
 }
 
 REGION_COLORS = {
-    "South": "#1A73E8",
-    "West": "#FF9900",
-    "North": "#00C853",
-    "East": "#FF1744",
-    "Northeast": "#5F259F",
-    "Central": "#00BAF2",
-    "Other": "#95A5A6",
+    "South": "#2563EB",
+    "West": "#D97706",
+    "North": "#059669",
+    "East": "#DC2626",
+    "Northeast": "#7C3AED",
+    "Central": "#0891B2",
+    "Other": "#94A3B8",
 }
 
 PLOTLY_CONFIG = {"displayModeBar": False, "responsive": True}
@@ -61,16 +61,27 @@ def apply_common_layout(fig: go.Figure, height: int | None = None) -> go.Figure:
     """Apply consistent layout styling to any Plotly figure."""
     layout = dict(
         template="plotly_white",
-        font=dict(family="Inter, sans-serif", size=13),
-        title_font_size=16,
+        font=dict(
+            family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            size=13,
+            color="#334155",
+        ),
+        title_font=dict(size=15, color="#0f172a"),
         title_x=0,
-        hoverlabel=dict(bgcolor="white", font_size=12),
+        hoverlabel=dict(bgcolor="white", font_size=12, bordercolor="#e2e8f0"),
         margin=dict(l=40, r=40, t=50, b=40),
-        legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5),
+        legend=dict(
+            orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5,
+            font=dict(size=11, color="#475569"),
+        ),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
     )
     if height:
         layout["height"] = height
     fig.update_layout(**layout)
+    fig.update_xaxes(gridcolor="#f1f5f9", linecolor="#e2e8f0", linewidth=1)
+    fig.update_yaxes(gridcolor="#f1f5f9", linecolor="#e2e8f0", linewidth=1)
     return fig
 
 
@@ -204,7 +215,7 @@ def create_multi_line(
     """Create a multi-line chart from multiple y columns."""
     fig = go.Figure()
     names = names or y_cols
-    default_colors = ["#6C63FF", "#1A73E8", "#00C853", "#FF9900", "#FF1744"]
+    default_colors = ["#2563EB", "#7C3AED", "#059669", "#D97706", "#DC2626"]
     colors = colors or default_colors
 
     for i, (col, name) in enumerate(zip(y_cols, names)):
