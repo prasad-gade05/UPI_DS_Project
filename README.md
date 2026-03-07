@@ -2,6 +2,8 @@
 
 **Live App:** https://upi-analytics.streamlit.app/
 
+> **Note:** This app is hosted on Streamlit's free tier. If you see a screen saying _"This app has gone to sleep"_, it's not broken — just click the button to wake it up. Free hosting sleeps inactive apps to save resources for the open-source community. It'll be back in ~30 seconds!
+
 An end-to-end data engineering and analytics platform analyzing India's Unified Payments Interface (UPI) -- the world's largest real-time digital payment system by transaction volume.
 
 ---
