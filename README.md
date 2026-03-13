@@ -20,6 +20,12 @@ The pipeline processes 235+ billion transactions worth 345+ trillion INR, spanni
 
 Three independent, publicly available data sources are used. Each covers a different aspect of UPI.
 
+The enriched combined dataset is also available on Hugging Face:  
+[`prasad-gade05/india-upi-ecosystem-2018-2025`](https://huggingface.co/datasets/prasad-gade05/india-upi-ecosystem-2018-2025)
+
+Hugging Face dataset card content used for publishing is available in this repository at:  
+[`DatasetReadme.md`](DatasetReadme.md)
+
 | Source                                                                  | What It Contains                                                                                        | Time Period                    | Why We Use It                                                                                                 |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
 | [PhonePe Pulse](https://github.com/PhonePe/pulse)                       | District-level UPI transactions, user registrations, device brands, insurance data across 788 districts | Q1 2018 -- Q2 2025             | Only publicly available district-level UPI data in India. 9,026 JSON files parsed from their GitHub repo.     |
